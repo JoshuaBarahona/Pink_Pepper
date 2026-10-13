@@ -1,0 +1,145 @@
+.card-preview-scene {
+  width: 100%;
+  max-width: 390px;
+  height: 230px;
+  margin: 0 auto 24px;
+  perspective: 1200px;
+}
+
+.card-preview-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transform-style: preserve-3d;
+  transition: transform 0.75s ease;
+  text-align: left;
+  color: white;
+}
+
+.card-preview-inner.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.card-preview-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  padding: 24px;
+  box-sizing: border-box;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow: hidden;
+  box-shadow: 0 12px 30px rgba(65, 15, 35, 0.25);
+}
+
+.card-preview-front {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #e86d94, #8d204d 65%, #49112f);
+}
+
+.card-preview-back {
+  background: linear-gradient(135deg, #8d204d, #49112f);
+  transform: rotateY(180deg);
+}
+
+.card-preview-top,
+.card-preview-bottom,
+.card-preview-back-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.card-preview-bank {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.card-preview-chip {
+  width: 45px;
+  height: 32px;
+  border-radius: 7px;
+  background: linear-gradient(135deg, #f7e6ad, #c7a653);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.card-preview-number {
+  font-size: clamp(16px, 4vw, 22px);
+  letter-spacing: 2px;
+  font-weight: 600;
+}
+
+.card-preview-bottom small {
+  display: block;
+  font-size: 9px;
+  opacity: 0.8;
+  margin-bottom: 5px;
+}
+
+.card-preview-bottom strong {
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.card-preview-stripe {
+  height: 46px;
+  background: #21141c;
+  margin: 15px -24px 22px;
+}
+
+.card-preview-signature {
+  background: #f6edf0;
+  color: #492438;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: 4px;
+}
+
+.card-preview-signature span {
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+.card-preview-cvv {
+  background: white;
+  color: #333;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 3px;
+}
+
+.card-preview-back-footer {
+  margin-top: 22px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+@media (max-width: 480px) {
+  .card-preview-scene {
+    height: 210px;
+  }
+
+  .card-preview-face {
+    padding: 18px;
+  }
+
+  .card-preview-stripe {
+    margin-left: -18px;
+    margin-right: -18px;
+  }
+}

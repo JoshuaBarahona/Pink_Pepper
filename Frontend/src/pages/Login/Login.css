@@ -1,0 +1,345 @@
+/* LOGIN PAGE */
+
+.login-page {
+  min-height: calc(100vh - 82px);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 60px 20px;
+
+  background-color: #F4C9D6;
+}
+
+
+/* CARD */
+
+.login-card {
+  width: 100%;
+  max-width: 460px;
+
+  padding: 45px;
+
+  background-color: #F5F0E6;
+
+  border-radius: 24px;
+
+  box-shadow:
+    0 8px 20px rgba(62, 39, 35, 0.08),
+    0 20px 45px rgba(62, 39, 35, 0.10);
+}
+
+
+/* LOGO */
+
+.login-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 10px;
+
+  margin-bottom: 35px;
+
+  color: #3E2723;
+
+  font-size: 1.3rem;
+  font-weight: 900;
+
+  letter-spacing: 2px;
+}
+
+.login-logo svg {
+  color: #D94F70;
+
+  font-size: 1.5rem;
+}
+
+
+/* HEADER */
+
+.login-header {
+  text-align: center;
+
+  margin-bottom: 30px;
+}
+
+.login-header h1 {
+  margin-bottom: 8px;
+
+  color: #3E2723;
+
+  font-size: 2rem;
+  font-weight: 900;
+}
+
+.login-header p {
+  color: #3E2723;
+
+  font-size: 0.95rem;
+
+  opacity: 0.65;
+}
+
+
+/* FORM */
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+
+  gap: 20px;
+}
+
+
+/* CAMPOS */
+
+.login-field {
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+.login-field label {
+  color: #3E2723;
+
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+
+/* INPUT */
+
+.input-wrapper {
+  height: 50px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 0 16px;
+
+  border: 1.5px solid rgba(62, 39, 35, 0.2);
+
+  border-radius: 12px;
+
+  background-color: #FFFFFF;
+
+  transition: all 0.3s ease;
+}
+
+.input-wrapper svg {
+  color: #D94F70;
+
+  font-size: 0.9rem;
+}
+
+.input-wrapper:focus-within {
+  border-color: #D94F70;
+
+  box-shadow:
+    0 0 0 3px rgba(217, 79, 112, 0.12);
+}
+
+.input-wrapper input {
+  width: 100%;
+
+  border: none;
+  outline: none;
+
+  background: transparent;
+
+  color: #3E2723;
+
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+
+.input-wrapper input::placeholder {
+  color: #3E2723;
+
+  opacity: 0.35;
+}
+
+
+/* OPCIONES */
+
+.login-options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-top: -3px;
+
+  font-size: 0.78rem;
+}
+
+.remember-me {
+  display: flex;
+  align-items: center;
+
+  gap: 7px;
+
+  color: #3E2723;
+
+  cursor: pointer;
+}
+
+.remember-me input {
+  appearance: none;
+  -webkit-appearance: none;
+
+  width: 17px;
+  height: 17px;
+
+  margin: 0;
+
+  border: 1.5px solid rgba(62, 39, 35, 0.3);
+  border-radius: 5px;
+
+  background-color: #FFFFFF;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+
+/* CHECK */
+
+.remember-me input::after {
+  content: "✓";
+
+  color: #F5F0E6;
+
+  font-size: 11px;
+  font-weight: 900;
+
+  line-height: 1;
+
+  transform: scale(0);
+
+  transition: transform 0.15s ease;
+}
+
+
+/* SELECCIONADO */
+
+.remember-me input:checked {
+  border-color: #D94F70;
+  background-color: #D94F70;
+}
+
+.remember-me input:checked::after {
+  transform: scale(1);
+}
+
+
+/* HOVER */
+
+.remember-me input:hover {
+  border-color: #D94F70;
+}
+
+
+/* FOCUS */
+
+.remember-me input:focus-visible {
+  outline: none;
+
+  box-shadow:
+    0 0 0 3px rgba(217, 79, 112, 0.15);
+}
+
+.login-options a {
+  color: #D94F70;
+
+  font-weight: 700;
+
+  text-decoration: none;
+}
+
+.login-options a:hover {
+  text-decoration: underline;
+}
+
+
+/* BOTÓN */
+
+.login-button {
+  height: 50px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 12px;
+
+  margin-top: 8px;
+
+  border: none;
+
+  border-radius: 12px;
+
+  background-color: #3E2723;
+  color: #F5F0E6;
+
+  font-family: inherit;
+
+  font-size: 0.95rem;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition: all 0.3s ease;
+}
+
+.login-button:hover {
+  background-color: #D94F70;
+
+  transform: translateY(-2px);
+}
+
+.login-button svg {
+  font-size: 0.8rem;
+}
+
+
+/* REGISTRO */
+
+.login-register {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 5px;
+
+  margin-top: 28px;
+
+  color: #3E2723;
+
+  font-size: 0.82rem;
+}
+
+.login-register span {
+  opacity: 0.65;
+}
+
+.login-register a {
+  color: #D94F70;
+
+  font-weight: 800;
+
+  text-decoration: none;
+}
+
+.login-register a:hover {
+  text-decoration: underline;
+}

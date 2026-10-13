@@ -1,0 +1,149 @@
+.payment-card-form {
+  margin-bottom: 25px;
+  padding: 25px 20px;
+  background-color: #F5F0E6;
+  border-radius: 15px;
+  color: #3E2723;
+}
+
+.payment-card-form h3 {
+  margin-bottom: 12px;
+}
+
+.payment-form-note {
+  margin-bottom: 20px;
+  color: #7A625C;
+  font-size: 0.85rem;
+}
+
+.payment-preview-container {
+  display: flex;
+  justify-content: center;
+  margin: 25px 0;
+}
+
+.payment-card-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.payment-card-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+}
+
+.payment-card-field label {
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.payment-card-field input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1px solid rgba(62, 39, 35, 0.2);
+  border-radius: 10px;
+  background-color: #fff;
+  color: #3E2723;
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+
+.payment-card-field input:focus {
+  outline: none;
+  border-color: #D94F70;
+}
+
+.payment-brand-indicator {
+  color: #D94F70;
+  font-weight: 700;
+}
+
+.payment-valid {
+  color: #228b57;
+}
+
+.payment-invalid {
+  color: #d32f2f;
+}
+
+.payment-card-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.payment-card-form-actions button {
+  min-height: 42px;
+  padding: 10px 18px;
+  border-radius: 20px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.payment-card-cancel {
+  border: 1px solid #3E2723;
+  background: transparent;
+  color: #3E2723;
+}
+
+.payment-card-save {
+  border: none;
+  background: #D94F70;
+  color: white;
+}
+
+.payment-card-save:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+  .payment-card-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .payment-card-form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .payment-card-form-actions button {
+    width: 100%;
+  }
+}
+
+/* AGREGAR TARJETA DESDE CHECKOUT */
+
+.checkout-add-card-button {
+  width: 100%;
+  margin-top: 18px;
+  padding: 14px 18px;
+
+  border: 2px dashed #D94F70;
+  border-radius: 12px;
+
+  background-color: transparent;
+  color: #D94F70;
+
+  font-size: 0.95rem;
+  font-weight: 700;
+
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.checkout-add-card-button:hover {
+  background-color: #FFF0F4;
+}
+
+.checkout-new-card-form {
+  margin-top: 20px;
+}
+
+.checkout-new-card-form .payment-card-form {
+  margin-bottom: 0;
+}
