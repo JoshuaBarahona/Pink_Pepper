@@ -1,0 +1,286 @@
+.product-card {
+  width: 100%;
+  max-width: 300px;
+
+  background-color: #F5F0E6;
+
+  border-radius: 22px;
+  overflow: hidden;
+
+  box-shadow: 0 8px 25px rgba(62, 39, 35, 0.08);
+
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-7px);
+
+  box-shadow: 0 14px 30px rgba(62, 39, 35, 0.15);
+}
+
+
+/* =========================
+   IMAGEN
+========================= */
+
+.product-image {
+  position: relative;
+
+  width: 100%;
+  height: 210px;
+
+  overflow: hidden;
+
+  background-color: #F4C9D6;
+}
+
+.product-image img {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+
+  transition: transform 0.4s ease;
+}
+
+.product-card:hover .product-image img {
+  transform: scale(1.05);
+}
+
+
+/* =========================
+   FAVORITO
+========================= */
+
+.product-favorite {
+  position: absolute;
+
+  top: 15px;
+  right: 15px;
+
+  width: 36px;
+  height: 36px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background-color: #F5F0E6;
+  color: #D94F70;
+
+  font-size: 0.85rem;
+}
+
+
+/* =========================
+   INFORMACIÓN
+========================= */
+
+.product-info {
+  padding: 20px;
+
+   min-height: 175px;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.product-info h3 {
+  margin-bottom: 8px;
+
+  color: #3E2723;
+
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.product-info p {
+  color: #3E2723;
+
+  font-size: 0.9rem;
+  line-height: 1.5;
+
+  opacity: 0.75;
+
+  height: 43px;
+  overflow: hidden;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+
+  flex-shrink: 0;
+}
+
+
+/* =========================
+   PRECIO + BOTÓN
+========================= */
+
+.product-bottom {
+  margin-top: auto;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.product-price {
+  color: #3E2723;
+
+  font-size: 1.2rem;
+  font-weight: 900;
+}
+
+.product-add {
+  width: 40px;
+  height: 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  border-radius: 50%;
+
+  background-color: #3E2723;
+  color: #F5F0E6;
+
+  font-size: 0.9rem;
+
+  cursor: pointer;
+
+  transition: 0.3s ease;
+}
+
+.product-add:hover {
+  background-color: #D94F70;
+
+  transform: rotate(90deg);
+}
+
+/* =========================
+   OPCIONES DEL PRODUCTO
+========================= */
+
+.product-options {
+  margin-top: 16px;
+  padding-top: 14px;
+
+  border-top: 1px solid rgba(62, 39, 35, 0.15);
+}
+
+.options-title {
+  height: auto !important;
+
+  margin: 0 0 10px;
+
+  color: #3E2723;
+
+  font-size: 0.9rem;
+  font-weight: 700;
+
+  opacity: 1 !important;
+
+  overflow: visible !important;
+
+  display: block !important;
+}
+
+.options-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
+
+  margin-bottom: 14px;
+}
+
+.option-item {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 7px 10px;
+
+  color: #3E2723;
+
+  font-size: 0.9rem;
+  font-weight: 500;
+
+  border-radius: 10px;
+
+  cursor: pointer;
+
+  transition: background-color 0.2s ease;
+}
+
+.option-item:hover {
+  background-color: rgba(217, 79, 112, 0.08);
+}
+
+.option-item input {
+  appearance: none;
+  -webkit-appearance: none;
+
+  width: 18px;
+  height: 18px;
+
+  margin: 0;
+
+  border: 2px solid #3E2723;
+  border-radius: 50%;
+
+  background-color: transparent;
+
+  cursor: pointer;
+
+  position: relative;
+
+  transition: all 0.2s ease;
+
+  flex-shrink: 0;
+}
+
+.option-item input:hover {
+  border-color: #D94F70;
+}
+
+.option-item input:checked {
+  border-color: #D94F70;
+  background-color: #D94F70;
+
+  box-shadow: inset 0 0 0 4px #F5F0E6;
+}
+
+.confirm-option {
+  width: 100%;
+
+  padding: 10px 16px;
+
+  border: none;
+  border-radius: 20px;
+
+  background-color: #3E2723;
+  color: #F5F0E6;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: 0.3s ease;
+}
+
+.confirm-option:hover:not(:disabled) {
+  background-color: #D94F70;
+}
+
+.confirm-option:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
