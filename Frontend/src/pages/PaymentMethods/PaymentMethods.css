@@ -1,0 +1,14 @@
+
+.payment-page-back {
+  margin-bottom: 22px;
+}
+
+.payment-page-back a {
+  color: #D94F70;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.payment-page-back a:hover {
+  text-decoration: underline;
+}

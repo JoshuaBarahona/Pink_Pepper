@@ -14,6 +14,7 @@ import {
   faInstagram,
   faFacebookF,
 } from "@fortawesome/free-brands-svg-icons";
+import { useAuth } from "../../context/AuthContext";
 
 import heroImage from "../../assets/images/Inicio_Pink_final.png";
 import ProductCard from "../../components/ProductCard/ProductCard";
@@ -69,6 +70,7 @@ const menuCategories = [
 ];
 
 function Home() {
+
   return (
     <main className="home">
 
