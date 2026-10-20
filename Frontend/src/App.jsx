@@ -9,6 +9,8 @@ import Cart from "./pages/Cart/Cart";
 import Checkout from "./pages/Checkout/Checkout";
 import Profile from "./pages/Profile/Profile";
 import OrderConfirmation from "./pages/OrderConfirmation/OrderConfirmation";
+import DriverDashboard from "./pages/DriverDashboard/DriverDashboard";
+import ActiveDelivery from "./pages/ActiveDelivery/ActiveDelivery";
 
 import "./App.css";
 
@@ -18,14 +20,16 @@ function App() {
       <Navbar />
 
       <Routes>
+        <Route path="/repartidor" element={<DriverDashboard />} />
+        <Route path="/entrega-activa" element={<ActiveDelivery />} />
         <Route path="/" element={<Home />} />
         <Route path="/menu" element={<Menu />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/carrito" element={<Cart />} />
-        <Route path = "/checkout" element={<Checkout />} />
-        <Route path = "/perfil" element={<Profile />} />
-        <Route path = "/pedido-confirmado" element={<OrderConfirmation/>} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/perfil" element={<Profile />} />
+        <Route path="/pedido-confirmado" element={<OrderConfirmation />} />
       </Routes>
     </>
   );

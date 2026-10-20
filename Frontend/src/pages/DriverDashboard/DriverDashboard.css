@@ -1,0 +1,427 @@
+/* =========================
+   PÁGINA
+========================= */
+
+.driver-page {
+  min-height: calc(100vh - 82px);
+  padding: 70px 8%;
+  background-color: #F5F0E6;
+  color: #3E2723;
+}
+
+.driver-container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+
+/* =========================
+   ENCABEZADO
+========================= */
+
+.driver-header {
+  margin-bottom: 30px;
+}
+
+.driver-header > span {
+  color: #D94F70;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.driver-header h1 {
+  margin: 6px 0;
+  font-size: 2.5rem;
+}
+
+.driver-header p {
+  opacity: 0.7;
+}
+
+
+/* =========================
+   ESTADO EN LÍNEA
+========================= */
+
+.driver-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+
+  margin-bottom: 40px;
+  padding: 22px 28px;
+
+  background-color: #fff;
+  border: 2px solid transparent;
+  border-radius: 20px;
+
+  box-shadow: 0 8px 25px rgba(62, 39, 35, 0.08);
+
+  transition: border-color 0.3s ease;
+}
+
+.driver-status.online {
+  border-color: #D94F70;
+}
+
+.driver-status-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.driver-status-info > div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.driver-status-info span {
+  font-size: 0.85rem;
+  opacity: 0.65;
+}
+
+.driver-status-icon {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background-color: rgba(62, 39, 35, 0.08);
+  color: #3E2723;
+
+  font-size: 1.1rem;
+
+  transition: 0.3s ease;
+}
+
+.driver-status.online .driver-status-icon {
+  background-color: #D94F70;
+  color: #F5F0E6;
+}
+
+
+/* TOGGLE */
+
+.driver-toggle {
+  position: relative;
+
+  width: 64px;
+  height: 36px;
+  flex-shrink: 0;
+
+  border: none;
+  border-radius: 20px;
+
+  background-color: #b8b0aa;
+
+  cursor: pointer;
+
+  transition: background-color 0.3s ease;
+}
+
+.driver-toggle.online {
+  background-color: #D94F70;
+}
+
+.driver-toggle-knob {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+
+  width: 28px;
+  height: 28px;
+
+  border-radius: 50%;
+
+  background-color: #F5F0E6;
+  box-shadow: 0 2px 6px rgba(62, 39, 35, 0.25);
+
+  transition: transform 0.3s ease;
+}
+
+.driver-toggle.online .driver-toggle-knob {
+  transform: translateX(28px);
+}
+
+.driver-toggle:focus-visible,
+.driver-accept-button:focus-visible {
+  outline: 3px solid rgba(217, 79, 112, 0.45);
+  outline-offset: 3px;
+}
+
+
+/* =========================
+   PEDIDOS PENDIENTES
+========================= */
+
+.driver-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+
+  margin-bottom: 22px;
+}
+
+.driver-section-header h2 {
+  margin: 0;
+}
+
+.driver-count {
+  padding: 5px 12px;
+
+  border-radius: 20px;
+
+  background-color: rgba(217, 79, 112, 0.12);
+  color: #D94F70;
+
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.driver-orders-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 22px;
+}
+
+
+/* =========================
+   TARJETA DE PEDIDO
+========================= */
+
+.driver-card {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+
+  padding: 24px;
+
+  background-color: #fff;
+  border-radius: 20px;
+
+  box-shadow: 0 8px 25px rgba(62, 39, 35, 0.08);
+
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.driver-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 14px 30px rgba(62, 39, 35, 0.15);
+}
+
+.driver-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.driver-card-top > div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.driver-order-number {
+  font-size: 1.15rem;
+  font-weight: 900;
+}
+
+.driver-order-time {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  font-size: 0.8rem;
+  opacity: 0.65;
+}
+
+
+/* ETIQUETA DE PAGO */
+
+.driver-payment-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  padding: 5px 10px;
+
+  border-radius: 20px;
+
+  font-size: 0.75rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.driver-payment-badge.cash {
+  background-color: rgba(217, 79, 112, 0.12);
+  color: #D94F70;
+}
+
+.driver-payment-badge.paid {
+  background-color: rgba(62, 39, 35, 0.08);
+  color: #3E2723;
+}
+
+
+/* DETALLES */
+
+.driver-card-details {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  padding: 16px 0;
+
+  border-top: 1px solid rgba(62, 39, 35, 0.12);
+  border-bottom: 1px solid rgba(62, 39, 35, 0.12);
+}
+
+.driver-card-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.driver-card-row svg {
+  width: 16px;
+  margin-top: 3px;
+  flex-shrink: 0;
+
+  color: #D94F70;
+}
+
+.driver-card-row p {
+  font-size: 0.92rem;
+}
+
+.driver-card-address {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+
+/* FOOTER DE LA TARJETA */
+
+.driver-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+
+  margin-top: auto;
+}
+
+.driver-card-total {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.driver-card-total span {
+  font-size: 0.8rem;
+  opacity: 0.65;
+}
+
+.driver-card-total strong {
+  font-size: 1.3rem;
+}
+
+.driver-accept-button {
+  min-height: 44px;
+
+  padding: 12px 22px;
+
+  border: none;
+  border-radius: 25px;
+
+  background-color: #3E2723;
+  color: #F5F0E6;
+
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition: 0.3s ease;
+}
+
+.driver-accept-button:hover {
+  background-color: #D94F70;
+}
+
+
+/* =========================
+   ESTADO VACÍO
+========================= */
+
+.driver-empty {
+  padding: 60px 25px;
+
+  text-align: center;
+
+  background-color: #fff;
+  border-radius: 20px;
+
+  box-shadow: 0 8px 25px rgba(62, 39, 35, 0.08);
+}
+
+.driver-empty svg {
+  margin-bottom: 18px;
+
+  color: #D94F70;
+  font-size: 2.2rem;
+}
+
+.driver-empty h3 {
+  margin-bottom: 8px;
+  font-size: 1.2rem;
+}
+
+.driver-empty p {
+  opacity: 0.65;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 750px) {
+  .driver-page {
+    padding: 40px 5%;
+  }
+
+  .driver-header h1 {
+    font-size: 2rem;
+  }
+
+  .driver-status {
+    padding: 18px;
+  }
+
+  .driver-orders-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .driver-card,
+  .driver-toggle,
+  .driver-toggle-knob {
+    transition: none;
+  }
+
+  .driver-card:hover {
+    transform: none;
+  }
+}
