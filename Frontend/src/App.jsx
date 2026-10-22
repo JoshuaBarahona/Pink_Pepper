@@ -11,6 +11,9 @@ import Profile from "./pages/Profile/Profile";
 import OrderConfirmation from "./pages/OrderConfirmation/OrderConfirmation";
 import DriverDashboard from "./pages/DriverDashboard/DriverDashboard";
 import ActiveDelivery from "./pages/ActiveDelivery/ActiveDelivery";
+import ManagerDashboard from "./pages/ManagerDashboard/ManagerDashboard";
+import LocalReports from "./pages/LocalReports/LocalReports";
+import MenuManager from "./pages/MenuManager/MenuManager";
 
 import "./App.css";
 
@@ -20,6 +23,9 @@ function App() {
       <Navbar />
 
       <Routes>
+        <Route path="/gerente" element={<ManagerDashboard />} />
+        <Route path="/gerente/reportes" element={<LocalReports />} />
+        <Route path="/gerente/menu" element={<MenuManager />} />
         <Route path="/repartidor" element={<DriverDashboard />} />
         <Route path="/entrega-activa" element={<ActiveDelivery />} />
         <Route path="/" element={<Home />} />

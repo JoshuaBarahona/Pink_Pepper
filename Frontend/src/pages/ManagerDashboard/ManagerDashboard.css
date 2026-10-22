@@ -1,0 +1,481 @@
+/* =========================
+   PÁGINA
+========================= */
+
+.manager-page {
+  min-height: calc(100vh - 82px);
+  padding: 70px 8%;
+  background-color: #F5F0E6;
+  color: #3E2723;
+}
+
+.manager-container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+
+/* =========================
+   ENCABEZADO
+========================= */
+
+.manager-header {
+  margin-bottom: 30px;
+}
+
+.manager-header > span {
+  color: #D94F70;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.manager-header h1 {
+  margin: 6px 0;
+  font-size: 2.5rem;
+}
+
+.manager-header p {
+  opacity: 0.7;
+}
+
+
+/* =========================
+   RESUMEN RÁPIDO
+========================= */
+
+.manager-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+
+  margin-bottom: 45px;
+}
+
+.manager-summary-card {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+
+  padding: 25px;
+
+  background-color: #fff;
+  border-radius: 20px;
+
+  box-shadow: 0 8px 25px rgba(62, 39, 35, 0.08);
+}
+
+.manager-summary-icon {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background-color: rgba(217, 79, 112, 0.12);
+  color: #D94F70;
+
+  font-size: 1.15rem;
+}
+
+.manager-summary-card > div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.manager-summary-card span {
+  font-size: 0.85rem;
+  opacity: 0.65;
+}
+
+.manager-summary-card strong {
+  font-size: 1.8rem;
+  font-weight: 900;
+}
+
+
+/* =========================
+   MONITOR DE PEDIDOS
+========================= */
+
+.manager-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 15px;
+
+  margin-bottom: 22px;
+}
+
+.manager-section-header h2 {
+  margin: 0;
+}
+
+
+/* FILTROS */
+
+.manager-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.manager-filter-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  min-height: 38px;
+  padding: 8px 14px;
+
+  border: 1px solid rgba(62, 39, 35, 0.2);
+  border-radius: 20px;
+
+  background-color: transparent;
+  color: #3E2723;
+
+  font-size: 0.85rem;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: 0.3s ease;
+}
+
+.manager-filter-button span {
+  min-width: 20px;
+  padding: 1px 6px;
+
+  border-radius: 20px;
+
+  background-color: rgba(62, 39, 35, 0.08);
+
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.manager-filter-button:hover {
+  border-color: #D94F70;
+}
+
+.manager-filter-button.active {
+  border-color: #3E2723;
+  background-color: #3E2723;
+  color: #F5F0E6;
+}
+
+.manager-filter-button.active span {
+  background-color: #D94F70;
+  color: #F5F0E6;
+}
+
+.manager-filter-button:focus-visible,
+.manager-advance-button:focus-visible,
+.manager-undo-button:focus-visible {
+  outline: 3px solid rgba(217, 79, 112, 0.45);
+  outline-offset: 3px;
+}
+
+
+/* =========================
+   TARJETA DE PEDIDO
+========================= */
+
+.manager-orders-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 22px;
+}
+
+.manager-order-card {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+
+  padding: 24px;
+
+  background-color: #fff;
+  border: 2px solid transparent;
+  border-radius: 20px;
+
+  box-shadow: 0 8px 25px rgba(62, 39, 35, 0.08);
+
+  transition: border-color 0.3s ease;
+}
+
+.manager-order-card.ready {
+  border-color: #D94F70;
+  background-color: #fff3f6;
+}
+
+.manager-order-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.manager-order-top > div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.manager-order-number {
+  font-size: 1.15rem;
+  font-weight: 900;
+  overflow-wrap: anywhere;
+}
+
+.manager-order-time {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  font-size: 0.8rem;
+  opacity: 0.65;
+}
+
+.manager-type-badge,
+.manager-payment-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  padding: 5px 10px;
+
+  border-radius: 20px;
+
+  font-size: 0.75rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.manager-type-badge {
+  background-color: rgba(62, 39, 35, 0.08);
+  color: #3E2723;
+}
+
+.manager-payment-badge.cash {
+  background-color: rgba(217, 79, 112, 0.12);
+  color: #D94F70;
+}
+
+.manager-payment-badge.paid {
+  background-color: rgba(62, 39, 35, 0.08);
+  color: #3E2723;
+}
+
+
+/* CONTENIDO */
+
+.manager-order-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  padding: 16px 0;
+
+  border-top: 1px solid rgba(62, 39, 35, 0.12);
+  border-bottom: 1px solid rgba(62, 39, 35, 0.12);
+}
+
+.manager-order-customer {
+  font-size: 0.85rem;
+  font-weight: 700;
+  opacity: 0.65;
+}
+
+.manager-order-items {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  list-style: none;
+}
+
+.manager-order-items strong {
+  color: #D94F70;
+}
+
+.manager-order-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.manager-order-total {
+  font-size: 1.3rem;
+}
+
+
+/* PASOS */
+
+.manager-steps {
+  display: flex;
+  gap: 6px;
+
+  list-style: none;
+}
+
+.manager-step {
+  flex: 1;
+
+  padding: 7px 4px;
+
+  border-radius: 12px;
+
+  background-color: rgba(62, 39, 35, 0.08);
+  color: rgba(62, 39, 35, 0.6);
+
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.manager-step.done {
+  background-color: rgba(217, 79, 112, 0.12);
+  color: #D94F70;
+}
+
+.manager-step.current {
+  background-color: #D94F70;
+  color: #F5F0E6;
+}
+
+
+/* ACCIONES */
+
+.manager-order-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+
+  margin-top: auto;
+}
+
+.manager-advance-button {
+  width: 100%;
+  min-height: 46px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  padding: 12px;
+
+  border: none;
+  border-radius: 25px;
+
+  background-color: #3E2723;
+  color: #F5F0E6;
+
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition: 0.3s ease;
+}
+
+.manager-advance-button:hover {
+  background-color: #D94F70;
+}
+
+.manager-advance-button:disabled {
+  background-color: #b8b0aa;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.manager-undo-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  border: none;
+  background: transparent;
+  color: #3E2723;
+
+  font-size: 0.82rem;
+  text-decoration: underline;
+
+  cursor: pointer;
+}
+
+.manager-undo-button:hover {
+  color: #D94F70;
+}
+
+
+/* =========================
+   ESTADO VACÍO
+========================= */
+
+.manager-empty {
+  padding: 60px 25px;
+
+  text-align: center;
+
+  background-color: #fff;
+  border-radius: 20px;
+
+  box-shadow: 0 8px 25px rgba(62, 39, 35, 0.08);
+}
+
+.manager-empty svg {
+  margin-bottom: 18px;
+
+  color: #D94F70;
+  font-size: 2.2rem;
+}
+
+.manager-empty h3 {
+  margin-bottom: 8px;
+  font-size: 1.2rem;
+}
+
+.manager-empty p {
+  opacity: 0.65;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 900px) {
+  .manager-summary {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 750px) {
+  .manager-page {
+    padding: 40px 5%;
+  }
+
+  .manager-header h1 {
+    font-size: 2rem;
+  }
+
+  .manager-orders-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .manager-order-card,
+  .manager-filter-button,
+  .manager-advance-button {
+    transition: none;
+  }
+}
