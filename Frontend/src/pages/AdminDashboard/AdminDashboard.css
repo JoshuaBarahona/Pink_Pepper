@@ -1,0 +1,250 @@
+/* =========================
+   PÁGINA
+========================= */
+
+.admin-page {
+  min-height: calc(100vh - 82px);
+  padding: 70px 8%;
+  background-color: #F5F0E6;
+  color: #3E2723;
+}
+
+.admin-container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+
+/* =========================
+   ENCABEZADO
+========================= */
+
+.admin-header {
+  margin-bottom: 30px;
+}
+
+.admin-header > span {
+  color: #D94F70;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.admin-header h1 {
+  margin: 6px 0;
+  font-size: 2.5rem;
+}
+
+.admin-header p {
+  opacity: 0.7;
+}
+
+
+/* =========================
+   SESIÓN
+========================= */
+
+.admin-session {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+
+  margin-bottom: 35px;
+  padding: 20px 26px;
+
+  background-color: #fff;
+  border-radius: 20px;
+
+  box-shadow: 0 8px 25px rgba(62, 39, 35, 0.08);
+}
+
+.admin-session-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.admin-session-info > div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.admin-session-info span {
+  font-size: 0.85rem;
+  opacity: 0.65;
+}
+
+.admin-session-icon {
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background-color: rgba(217, 79, 112, 0.12);
+  color: #D94F70;
+
+  font-size: 1.05rem;
+}
+
+.admin-logout-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  min-height: 42px;
+  padding: 9px 18px;
+
+  border: 1px solid #3E2723;
+  border-radius: 20px;
+
+  background-color: transparent;
+  color: #3E2723;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: 0.3s ease;
+}
+
+.admin-logout-button:hover {
+  border-color: #D94F70;
+  background-color: #D94F70;
+  color: #F5F0E6;
+}
+
+
+/* =========================
+   ROLES
+========================= */
+
+.admin-roles-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.admin-role-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  padding: 28px;
+
+  background-color: #fff;
+  border-radius: 20px;
+
+  box-shadow: 0 8px 25px rgba(62, 39, 35, 0.08);
+}
+
+.admin-role-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.admin-role-top h2 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.admin-role-icon {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background-color: #D94F70;
+  color: #F5F0E6;
+
+  font-size: 1.1rem;
+}
+
+.admin-role-description {
+  font-size: 0.92rem;
+  opacity: 0.7;
+}
+
+.admin-role-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.admin-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  min-height: 42px;
+  padding: 9px 16px;
+
+  border-radius: 20px;
+
+  background-color: #3E2723;
+  color: #F5F0E6;
+
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
+
+  transition: 0.3s ease;
+}
+
+.admin-link:hover {
+  background-color: #D94F70;
+}
+
+.admin-role-note {
+  font-size: 0.8rem;
+  opacity: 0.65;
+}
+
+.admin-logout-button:focus-visible,
+.admin-link:focus-visible {
+  outline: 3px solid rgba(217, 79, 112, 0.45);
+  outline-offset: 3px;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 800px) {
+  .admin-page {
+    padding: 40px 5%;
+  }
+
+  .admin-header h1 {
+    font-size: 2rem;
+  }
+
+  .admin-roles-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-role-card {
+    padding: 22px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-link,
+  .admin-logout-button {
+    transition: none;
+  }
+}

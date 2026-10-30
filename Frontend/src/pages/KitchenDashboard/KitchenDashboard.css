@@ -1,0 +1,489 @@
+/* =========================
+   PÁGINA
+========================= */
+
+.kitchen-page {
+  height: 100vh;
+  height: 100dvh;
+
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  padding: 24px 3%;
+
+  background-color: #F5F0E6;
+  color: #3E2723;
+
+  /* Pantallas táctiles: sin selección de texto ni toques con retraso */
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+
+/* =========================
+   BARRA SUPERIOR
+========================= */
+
+.kitchen-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+
+  flex-shrink: 0;
+}
+
+.kitchen-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  font-size: 1.6rem;
+  font-weight: 900;
+  letter-spacing: 3px;
+}
+
+.kitchen-brand svg {
+  color: #D94F70;
+}
+
+.kitchen-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.kitchen-clock {
+  font-size: 1.8rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.kitchen-exit-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  min-height: 44px;
+  padding: 9px 18px;
+
+  border: 1px solid rgba(62, 39, 35, 0.35);
+  border-radius: 22px;
+
+  background-color: transparent;
+  color: #3E2723;
+
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+
+  cursor: pointer;
+}
+
+
+/* =========================
+   TABLERO
+========================= */
+
+.kitchen-board {
+  flex: 1;
+  min-height: 0;
+
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.kitchen-column {
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.kitchen-column-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  flex-shrink: 0;
+
+  padding: 16px 24px;
+
+  background-color: #fff;
+  border-radius: 20px;
+
+  box-shadow: 0 8px 25px rgba(62, 39, 35, 0.08);
+}
+
+.kitchen-column-header h2 {
+  margin: 0;
+  font-size: 1.6rem;
+}
+
+.kitchen-column-count {
+  min-width: 48px;
+  height: 48px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0 12px;
+
+  border-radius: 24px;
+
+  font-size: 1.5rem;
+  font-weight: 900;
+}
+
+.kitchen-column-header.incoming .kitchen-column-count {
+  background-color: #3E2723;
+  color: #F5F0E6;
+}
+
+.kitchen-column-header.preparing .kitchen-column-count {
+  background-color: #D94F70;
+  color: #fff;
+}
+
+/* Cada columna se desplaza por separado */
+.kitchen-column-body {
+  flex: 1;
+  min-height: 0;
+
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  align-content: start;
+  gap: 20px;
+
+  /* Deja espacio para que el aviso de "Deshacer" no tape el último ticket */
+  padding: 4px 4px 110px;
+
+  overflow-y: auto;
+}
+
+
+/* =========================
+   TICKET (COMANDA)
+========================= */
+
+.kitchen-ticket {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  padding: 24px;
+
+  background-color: #fff;
+  border-top: 10px solid #3E2723;
+  border-radius: 20px;
+
+  box-shadow: 0 8px 25px rgba(62, 39, 35, 0.08);
+}
+
+.kitchen-ticket.preparing {
+  border-top-color: #D94F70;
+}
+
+.kitchen-ticket-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.kitchen-ticket-number {
+  font-size: clamp(2.4rem, 4vw, 3.2rem);
+  font-weight: 900;
+  line-height: 1;
+}
+
+.kitchen-ticket-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 8px 14px;
+
+  border-radius: 20px;
+
+  background-color: rgba(62, 39, 35, 0.08);
+
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+/* Atrasado: pasa del tiempo límite */
+.kitchen-ticket-time.late {
+  background-color: #D94F70;
+  color: #fff;
+}
+
+
+/* PRODUCTOS */
+
+.kitchen-ticket-items {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+
+  padding: 20px 0;
+
+  border-top: 2px solid rgba(62, 39, 35, 0.12);
+  border-bottom: 2px solid rgba(62, 39, 35, 0.12);
+
+  list-style: none;
+}
+
+.kitchen-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.kitchen-item-qty {
+  min-width: 78px;
+
+  color: #D94F70;
+
+  font-size: 2.8rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.kitchen-item-info {
+  flex: 1;
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.kitchen-item-info strong {
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+/* Opción elegida: bloque de color para que no se pase por alto */
+.kitchen-item-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 8px 14px;
+
+  border-radius: 12px;
+
+  background-color: #D94F70;
+  color: #fff;
+
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+
+/* =========================
+   BOTONES DE ACCIÓN
+========================= */
+
+.kitchen-action-button {
+  width: 100%;
+  min-height: 78px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+
+  padding: 16px;
+
+  border: none;
+  border-radius: 20px;
+
+  font-family: inherit;
+  font-size: 1.3rem;
+  font-weight: 900;
+
+  cursor: pointer;
+
+  transition: transform 0.15s ease, filter 0.2s ease;
+}
+
+.kitchen-action-button.start {
+  background-color: #3E2723;
+  color: #F5F0E6;
+}
+
+.kitchen-action-button.dispatch {
+  background-color: #D94F70;
+  color: #fff;
+}
+
+.kitchen-action-button:active {
+  transform: scale(0.98);
+}
+
+@media (hover: hover) {
+  .kitchen-action-button:hover {
+    filter: brightness(1.12);
+  }
+}
+
+
+/* =========================
+   ESTADO VACÍO
+========================= */
+
+.kitchen-empty {
+  grid-column: 1 / -1;
+
+  padding: 60px 25px;
+
+  text-align: center;
+
+  background-color: rgba(255, 255, 255, 0.6);
+  border: 2px dashed rgba(62, 39, 35, 0.2);
+  border-radius: 20px;
+}
+
+.kitchen-empty svg {
+  margin-bottom: 14px;
+
+  color: #D94F70;
+  font-size: 2.6rem;
+}
+
+.kitchen-empty p {
+  font-size: 1.2rem;
+  font-weight: 700;
+  opacity: 0.65;
+}
+
+
+/* =========================
+   AVISO PARA DESHACER
+========================= */
+
+.kitchen-undo {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  z-index: 10;
+
+  display: flex;
+  align-items: center;
+  gap: 20px;
+
+  padding: 12px 14px 12px 24px;
+
+  border-radius: 20px;
+
+  background-color: #3E2723;
+  color: #F5F0E6;
+
+  font-size: 1.1rem;
+  font-weight: 700;
+
+  box-shadow: 0 8px 25px rgba(62, 39, 35, 0.25);
+
+  transform: translateX(-50%);
+}
+
+.kitchen-undo-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+
+  min-height: 52px;
+  padding: 10px 22px;
+
+  border: none;
+  border-radius: 14px;
+
+  background-color: #D94F70;
+  color: #fff;
+
+  font-family: inherit;
+  font-size: 1.05rem;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+
+/* =========================
+   FOCO (teclado y accesibilidad)
+========================= */
+
+.kitchen-action-button:focus-visible,
+.kitchen-exit-button:focus-visible,
+.kitchen-undo-button:focus-visible {
+  outline: 4px solid rgba(217, 79, 112, 0.5);
+  outline-offset: 3px;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+/* Tablets en vertical y teléfonos: columnas apiladas, scroll de página */
+@media (max-width: 800px) {
+  .kitchen-page {
+    height: auto;
+    min-height: 100vh;
+
+    padding: 18px 4%;
+  }
+
+  .kitchen-board {
+    grid-template-columns: 1fr;
+  }
+
+  .kitchen-column-body {
+    overflow-y: visible;
+    padding-bottom: 110px;
+  }
+
+  .kitchen-brand {
+    font-size: 1.3rem;
+  }
+
+  .kitchen-clock {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 560px) {
+  .kitchen-column-body {
+    grid-template-columns: 1fr;
+  }
+
+  .kitchen-exit-button {
+    padding: 9px 14px;
+  }
+
+  .kitchen-undo {
+    width: calc(100% - 32px);
+    justify-content: space-between;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kitchen-action-button {
+    transition: none;
+  }
+
+  .kitchen-action-button:active {
+    transform: none;
+  }
+}

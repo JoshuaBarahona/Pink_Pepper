@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -13,17 +14,37 @@ import "./Login.css";
 function Login() {
 
   const navigate = useNavigate();
-const { loginAsMockUser } = useAuth();
+  const { loginAsMockUser, loginAsAdmin } = useAuth();
 
-async function handleMockLogin() {
-  try {
-    await loginAsMockUser();
-    navigate("/perfil");
-  } catch (error) {
-    console.error("Error en login de prueba:", error);
-    alert("No se pudo iniciar la sesión de prueba.");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  async function handleMockLogin() {
+    try {
+      await loginAsMockUser();
+      navigate("/perfil");
+    } catch (error) {
+      console.error("Error en login de prueba:", error);
+      alert("No se pudo iniciar la sesión de prueba.");
+    }
   }
-}
+
+  function handleSubmit(e) {
+    e.preventDefault();
+
+    // Por ahora el único acceso con correo y contraseña es el admin de prueba.
+    const adminUser = loginAsAdmin(email, password);
+
+    if (adminUser) {
+      navigate("/admin");
+      return;
+    }
+
+    setError(
+      "Correo o contraseña incorrectos. Por ahora puedes entrar con el usuario de prueba."
+    );
+  }
 
   return (
     <main className="login-page">
@@ -53,7 +74,7 @@ async function handleMockLogin() {
 
 
         {/* FORMULARIO */}
-        <form className="login-form">
+        <form className="login-form" onSubmit={handleSubmit}>
 
           {/* CORREO */}
           <div className="login-field">
@@ -70,6 +91,13 @@ async function handleMockLogin() {
                 type="email"
                 id="email"
                 placeholder="tucuenta@email.com"
+                autoComplete="username"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setError("");
+                }}
+                required
               />
 
             </div>
@@ -92,6 +120,13 @@ async function handleMockLogin() {
                 type="password"
                 id="password"
                 placeholder="••••••••"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setError("");
+                }}
+                required
               />
 
             </div>
@@ -117,6 +152,14 @@ async function handleMockLogin() {
           </div>
 
 
+          {/* ERROR */}
+          {error && (
+            <p className="login-error" role="alert">
+              {error}
+            </p>
+          )}
+
+
           {/* BOTÓN */}
           <button type="submit" className="login-button">
 
@@ -127,25 +170,25 @@ async function handleMockLogin() {
           </button>
 
           <button
-  type="button"
-  className="login-button"
-  onClick={handleMockLogin}
-  style={{ width: "100%", marginTop: "15px" }}
->
-  Entrar como usuario de prueba
-</button>
+            type="button"
+            className="login-button"
+            onClick={handleMockLogin}
+            style={{ width: "100%", marginTop: "15px" }}
+          >
+            Entrar como usuario de prueba
+          </button>
 
         </form>
 
 
         {/* REGISTRO */}
         <div className="login-register">
-  <span>¿No tienes una cuenta?</span>
+          <span>¿No tienes una cuenta?</span>
 
-  <Link to="/register">
-    Regístrate
-  </Link>
-</div>
+          <Link to="/register">
+            Regístrate
+          </Link>
+        </div>
 
       </div>
 

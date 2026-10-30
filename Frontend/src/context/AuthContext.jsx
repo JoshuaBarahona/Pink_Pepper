@@ -1,10 +1,4 @@
-
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 import {
   getCurrentUser,
@@ -12,6 +6,12 @@ import {
   saveUser,
   logoutUser,
 } from "../services/userService";
+
+import {
+  getAdminSession,
+  loginTestAdmin,
+  logoutTestAdmin,
+} from "../services/adminService";
 
 const AuthContext = createContext();
 
@@ -24,10 +24,11 @@ export function AuthProvider({ children }) {
       try {
         const currentUser = await getCurrentUser();
 
-        setUser(currentUser);
+        // Si no hay usuario normal, se revisa si quedó una sesión de admin
+        setUser(currentUser ?? getAdminSession());
       } catch (error) {
         console.error("Error cargando usuario:", error);
-        setUser(null);
+        setUser(getAdminSession());
       } finally {
         setLoadingUser(false);
       }
@@ -38,11 +39,29 @@ export function AuthProvider({ children }) {
 
   // Inicio de sesión temporal
   async function loginAsMockUser() {
+    // Evita que quede una sesión de admin activa al mismo tiempo
+    logoutTestAdmin();
+
     const loggedUser = await loginMockUser();
 
     setUser(loggedUser);
 
     return loggedUser;
+  }
+
+  // Inicio de sesión del admin de prueba.
+  // Devuelve el usuario si las credenciales son correctas, o null si no.
+  function loginAsAdmin(email, password) {
+    const adminUser = loginTestAdmin(email, password);
+
+    if (!adminUser) return null;
+
+    // Evita que quede una sesión de usuario normal al mismo tiempo
+    logoutUser();
+
+    setUser(adminUser);
+
+    return adminUser;
   }
 
   // Actualizar datos del perfil
@@ -55,6 +74,7 @@ export function AuthProvider({ children }) {
   // Cerrar sesión
   function logout() {
     logoutUser();
+    logoutTestAdmin();
     setUser(null);
   }
 
@@ -66,7 +86,9 @@ export function AuthProvider({ children }) {
         updateUser,
         loadingUser,
         isAuthenticated: !!user,
+        isAdmin: user?.role === "admin",
         loginAsMockUser,
+        loginAsAdmin,
         logout,
       }}
     >
