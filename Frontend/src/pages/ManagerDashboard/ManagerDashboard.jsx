@@ -8,96 +8,198 @@ import {
   faStore,
   faClock,
   faCreditCard,
-  faRotateLeft,
   faBoxOpen,
+  faInbox,
+  faFire,
+  faHourglassHalf,
+  faFlask,
+  faForwardStep,
+  faRotateLeft,
 } from "@fortawesome/free-solid-svg-icons";
 
 import ManagerNav from "../../components/ManagerNav/ManagerNav";
 import "./ManagerDashboard.css";
 
 /* ---------------------------------------------------------
-   FLUJO DE ESTADOS
-   Recibido -> En preparación -> Listo
+   ETAPAS DEL PEDIDO (SOLO LECTURA PARA EL GERENTE)
+
+   received   -> preparing -> ready       : los mueve Cocina
+   ready      -> delivering -> completed  : los mueve el Repartidor
+   (en pedidos de retiro: ready -> completed)
+
+   El gerente solo ve en qué etapa va cada pedido.
 --------------------------------------------------------- */
 
-const STATUS_FLOW = [
-  { key: "received", label: "Recibido" },
-  { key: "preparing", label: "En preparación" },
-  { key: "ready", label: "Listo" },
+const STAGES = {
+  received: { label: "Recibido", icon: faInbox },
+  preparing: { label: "En preparación", icon: faFire },
+  ready: { label: "Listo", icon: faBoxOpen },
+  delivering: { label: "En camino", icon: faMotorcycle },
+  completed: { label: "Entregado", icon: faCircleCheck },
+};
+
+const DELIVERY_FLOW = [
+  "received",
+  "preparing",
+  "ready",
+  "delivering",
+  "completed",
 ];
 
-const FILTERS = [{ key: "all", label: "Todos" }, ...STATUS_FLOW];
+const PICKUP_FLOW = ["received", "preparing", "ready", "completed"];
+
+const FILTERS = [
+  { key: "all", label: "Todos" },
+  ...Object.entries(STAGES).map(([key, stage]) => ({
+    key,
+    label: stage.label,
+  })),
+];
+
+/* ---------------------------------------------------------
+   ESTADO DEL PAGO
+
+   Tarjeta  -> "paid" desde que entra el pedido.
+   Efectivo -> "pending" hasta que el pedido pasa a
+               "completed" (lo marca el repartidor al entregar);
+               en ese momento pasa solo a "paid".
+--------------------------------------------------------- */
+
+const PAYMENT_STATUS = {
+  paid: { label: "Pagado", icon: faCircleCheck },
+  pending: { label: "Pendiente de cobro", icon: faHourglassHalf },
+};
+
+/* ---------------------------------------------------------
+   MODO DE PRUEBA
+   Mientras Cocina y Repartidor no actualicen los pedidos de
+   verdad, este panel simula sus acciones para ver cómo cambian
+   las etapas, el estado de pago y los ingresos.
+   Ponerlo en false cuando exista el backend.
+--------------------------------------------------------- */
+
+const SHOW_TEST_SIMULATOR = true;
 
 /* ---------------------------------------------------------
    DATOS DE PRUEBA
-   Misma forma que el pedido que crea Checkout.jsx.
-   Reemplazar por el servicio real cuando exista el backend.
+   Misma forma que el pedido que crea Checkout.jsx, más
+   `paymentStatus`. Reemplazar por el servicio real cuando
+   exista el backend.
 --------------------------------------------------------- */
 
 const minutesAgo = (minutes) =>
   new Date(Date.now() - minutes * 60000).toISOString();
 
-// Lo ya entregado hoy (no aparece en el monitor).
-const deliveredToday = { count: 21, revenue: 6480 };
-
-const mockOrders = [
-  {
-    id: "PP-1760985010",
-    status: "received",
-    deliveryType: "delivery",
-    customer: { name: "María Fernanda López" },
-    payment: { type: "cash" },
-    items: [
-      { id: 1, name: "Hamburguesa clásica", quantity: 2, price: 270 },
-      { id: 2, name: "Chicken fingers", quantity: 1, price: 220 },
-    ],
-    total: 760,
-    createdAt: minutesAgo(2),
-  },
-  {
-    id: "PP-1760985011",
-    status: "received",
-    deliveryType: "pickup",
-    customer: { name: "Andrés Castillo" },
-    payment: { type: "card", brand: "Visa", last4: "1881" },
-    items: [{ id: 3, name: "Groovie Burger", quantity: 1, price: 360 }],
-    total: 360,
-    createdAt: minutesAgo(5),
-  },
-  {
-    id: "PP-1760985012",
-    status: "preparing",
-    deliveryType: "delivery",
-    customer: { name: "Carlos Mendoza" },
-    payment: { type: "card", brand: "Mastercard", last4: "4242" },
-    items: [
-      { id: 3, name: "Groovie Burger", quantity: 2, price: 360 },
-      { id: 2, name: "Chicken fingers", quantity: 1, price: 220 },
-    ],
-    total: 940,
-    createdAt: minutesAgo(14),
-  },
-  {
-    id: "PP-1760985013",
-    status: "preparing",
-    deliveryType: "delivery",
-    customer: { name: "Lucía Ramírez" },
-    payment: { type: "cash" },
-    items: [{ id: 2, name: "Chicken fingers", quantity: 3, price: 220 }],
-    total: 660,
-    createdAt: minutesAgo(19),
-  },
-  {
-    id: "PP-1760985014",
-    status: "ready",
-    deliveryType: "delivery",
-    customer: { name: "Sofía Alvarado" },
-    payment: { type: "cash" },
-    items: [{ id: 1, name: "Hamburguesa clásica", quantity: 1, price: 270 }],
-    total: 270,
-    createdAt: minutesAgo(27),
-  },
-];
+function buildMockOrders() {
+  return [
+    {
+      id: "PP-1761864530001",
+      status: "received",
+      paymentStatus: "pending",
+      deliveryType: "delivery",
+      customer: { name: "María Fernanda López" },
+      payment: { type: "cash" },
+      items: [
+        { id: 1, name: "Hamburguesa clásica", quantity: 2, price: 270 },
+        { id: 2, name: "Chicken fingers", quantity: 1, price: 220 },
+      ],
+      total: 760,
+      createdAt: minutesAgo(2),
+    },
+    {
+      id: "PP-1761864530002",
+      status: "preparing",
+      paymentStatus: "paid",
+      deliveryType: "pickup",
+      customer: { name: "Andrés Castillo" },
+      payment: { type: "card", brand: "Visa", last4: "1881" },
+      items: [
+        { id: 3, name: "Groovie Burger", quantity: 1, price: 360 },
+        { id: 7, name: "Limonada de fresa", quantity: 2, price: 75 },
+      ],
+      total: 510,
+      createdAt: minutesAgo(9),
+    },
+    {
+      id: "PP-1761864530003",
+      status: "preparing",
+      paymentStatus: "paid",
+      deliveryType: "delivery",
+      customer: { name: "Carlos Mendoza" },
+      payment: { type: "card", brand: "Mastercard", last4: "4242" },
+      items: [
+        { id: 3, name: "Groovie Burger", quantity: 2, price: 360 },
+        { id: 2, name: "Chicken fingers", quantity: 1, price: 220 },
+      ],
+      total: 940,
+      createdAt: minutesAgo(14),
+    },
+    {
+      id: "PP-1761864530004",
+      status: "ready",
+      paymentStatus: "pending",
+      deliveryType: "delivery",
+      customer: { name: "Lucía Ramírez" },
+      payment: { type: "cash" },
+      items: [{ id: 2, name: "Chicken fingers", quantity: 3, price: 220 }],
+      total: 660,
+      createdAt: minutesAgo(22),
+    },
+    {
+      id: "PP-1761864530005",
+      status: "delivering",
+      paymentStatus: "pending",
+      deliveryType: "delivery",
+      customer: { name: "Sofía Alvarado" },
+      payment: { type: "cash" },
+      items: [
+        { id: 1, name: "Hamburguesa clásica", quantity: 1, price: 270 },
+        { id: 5, name: "Alitas BBQ", quantity: 1, price: 250 },
+      ],
+      total: 520,
+      createdAt: minutesAgo(31),
+    },
+    {
+      id: "PP-1761864530006",
+      status: "delivering",
+      paymentStatus: "paid",
+      deliveryType: "delivery",
+      customer: { name: "Diego Romero" },
+      payment: { type: "card", brand: "Visa", last4: "7710" },
+      items: [
+        { id: 1, name: "Hamburguesa clásica", quantity: 2, price: 270 },
+        { id: 7, name: "Limonada de fresa", quantity: 2, price: 75 },
+      ],
+      total: 690,
+      createdAt: minutesAgo(36),
+    },
+    {
+      id: "PP-1761864530007",
+      status: "completed",
+      paymentStatus: "paid",
+      deliveryType: "delivery",
+      customer: { name: "Valeria Blandón" },
+      payment: { type: "cash" },
+      items: [
+        { id: 3, name: "Groovie Burger", quantity: 1, price: 360 },
+        { id: 5, name: "Alitas BBQ", quantity: 1, price: 250 },
+      ],
+      total: 610,
+      createdAt: minutesAgo(52),
+    },
+    {
+      id: "PP-1761864530008",
+      status: "completed",
+      paymentStatus: "paid",
+      deliveryType: "pickup",
+      customer: { name: "Marcos Téllez" },
+      payment: { type: "card", brand: "Visa", last4: "3355" },
+      items: [{ id: 2, name: "Chicken fingers", quantity: 2, price: 220 }],
+      total: 440,
+      createdAt: minutesAgo(64),
+    },
+  ];
+}
 
 /* ---------------------------------------------------------
    UTILIDADES
@@ -116,36 +218,67 @@ function getTimeAgo(isoDate) {
   return `Hace ${minutes} min`;
 }
 
-function getStatusIndex(status) {
-  return STATUS_FLOW.findIndex((step) => step.key === status);
+function getFlow(order) {
+  return order.deliveryType === "delivery" ? DELIVERY_FLOW : PICKUP_FLOW;
 }
 
-function getAdvanceLabel(order) {
-  if (order.status === "received") return "Empezar a preparar";
+function getStageLabel(order) {
+  if (order.status === "ready") {
+    return order.deliveryType === "delivery"
+      ? "Listo para repartidor"
+      : "Listo para retiro";
+  }
 
-  return order.deliveryType === "delivery"
-    ? "Listo para repartidor"
-    : "Listo para retiro";
+  return STAGES[order.status].label;
 }
 
-function getWaitingLabel(order) {
-  return order.deliveryType === "delivery"
-    ? "Esperando repartidor"
-    : "Esperando al cliente";
+// Simula el siguiente paso que daría Cocina o el Repartidor.
+// El efectivo pasa a "paid" al llegar a "completed".
+function advanceOrder(order) {
+  const flow = getFlow(order);
+  const nextStatus = flow[flow.indexOf(order.status) + 1];
+
+  if (!nextStatus) return order;
+
+  const isCash = order.payment.type === "cash";
+
+  return {
+    ...order,
+    status: nextStatus,
+    paymentStatus:
+      isCash && nextStatus === "completed" ? "paid" : order.paymentStatus,
+  };
 }
 
 function ManagerDashboard() {
-  const [orders, setOrders] = useState(mockOrders);
+  const [orders, setOrders] = useState(buildMockOrders);
   const [activeFilter, setActiveFilter] = useState("all");
+  const [simulatedId, setSimulatedId] = useState("");
 
-  const ordersTotal = orders.reduce((sum, order) => sum + order.total, 0);
-  const dailyRevenue = deliveredToday.revenue + ordersTotal;
+  /* MÉTRICAS */
+  const dailyRevenue = orders
+    .filter((order) => order.paymentStatus === "paid")
+    .reduce((sum, order) => sum + order.total, 0);
+
+  const pendingAmount = orders
+    .filter((order) => order.paymentStatus === "pending")
+    .reduce((sum, order) => sum + order.total, 0);
+
+  const activeCount = orders.filter(
+    (order) => order.status !== "completed"
+  ).length;
+
   const readyCount = orders.filter((order) => order.status === "ready").length;
 
-  const visibleOrders =
-    activeFilter === "all"
-      ? orders
-      : orders.filter((order) => order.status === activeFilter);
+  /* LISTA: los pedidos entregados van al final */
+  const visibleOrders = orders
+    .filter((order) =>
+      activeFilter === "all" ? true : order.status === activeFilter
+    )
+    .sort(
+      (a, b) =>
+        Number(a.status === "completed") - Number(b.status === "completed")
+    );
 
   function getFilterCount(filterKey) {
     if (filterKey === "all") return orders.length;
@@ -153,18 +286,30 @@ function ManagerDashboard() {
     return orders.filter((order) => order.status === filterKey).length;
   }
 
-  function changeStatus(orderId, direction) {
-    // Cuando exista backend: enviar el cambio de estado aquí.
+  /* SIMULADOR */
+  const simulatableOrders = orders.filter(
+    (order) => order.status !== "completed"
+  );
+
+  const selectedSimId = simulatableOrders.some(
+    (order) => order.id === simulatedId
+  )
+    ? simulatedId
+    : simulatableOrders[0]?.id ?? "";
+
+  function handleSimulateAdvance() {
+    if (!selectedSimId) return;
+
     setOrders((currentOrders) =>
-      currentOrders.map((order) => {
-        if (order.id !== orderId) return order;
-
-        const nextIndex = getStatusIndex(order.status) + direction;
-        const nextStep = STATUS_FLOW[nextIndex];
-
-        return nextStep ? { ...order, status: nextStep.key } : order;
-      })
+      currentOrders.map((order) =>
+        order.id === selectedSimId ? advanceOrder(order) : order
+      )
     );
+  }
+
+  function handleResetOrders() {
+    setOrders(buildMockOrders());
+    setSimulatedId("");
   }
 
   return (
@@ -176,7 +321,7 @@ function ManagerDashboard() {
           <span>PANEL DEL GERENTE</span>
           <h1>Hoy en el local</h1>
           <p>
-            Sigue los pedidos en cocina y revisa cómo va el día.
+            Sigue en qué etapa va cada pedido y cuánto dinero ya entró.
           </p>
         </div>
 
@@ -194,6 +339,11 @@ function ManagerDashboard() {
             <div>
               <span>Ingresos del día</span>
               <strong>{formatMoney(dailyRevenue)}</strong>
+              <small>
+                {pendingAmount > 0
+                  ? `${formatMoney(pendingAmount)} pendientes de cobro`
+                  : "Todo cobrado"}
+              </small>
             </div>
           </div>
 
@@ -204,7 +354,7 @@ function ManagerDashboard() {
 
             <div>
               <span>Pedidos activos</span>
-              <strong>{orders.length}</strong>
+              <strong>{activeCount}</strong>
             </div>
           </div>
 
@@ -222,11 +372,71 @@ function ManagerDashboard() {
         </div>
 
 
+        {/* SIMULADOR (SOLO PRUEBAS) */}
+        {SHOW_TEST_SIMULATOR && (
+          <div className="manager-simulator">
+
+            <div className="manager-simulator-text">
+              <strong>
+                <FontAwesomeIcon icon={faFlask} />
+                MODO DE PRUEBA
+              </strong>
+
+              <span>
+                Simula lo que harían Cocina y el Repartidor. El gerente
+                solo ve el resultado.
+              </span>
+            </div>
+
+            <div className="manager-simulator-controls">
+              <select
+                className="manager-simulator-select"
+                aria-label="Pedido a avanzar"
+                value={selectedSimId}
+                onChange={(e) => setSimulatedId(e.target.value)}
+                disabled={simulatableOrders.length === 0}
+              >
+                {simulatableOrders.length === 0 && (
+                  <option value="">Todos entregados</option>
+                )}
+
+                {simulatableOrders.map((order) => (
+                  <option key={order.id} value={order.id}>
+                    #{order.id} ({getStageLabel(order)},{" "}
+                    {order.payment.type === "cash" ? "efectivo" : "tarjeta"})
+                  </option>
+                ))}
+              </select>
+
+              <button
+                type="button"
+                className="manager-simulator-button"
+                onClick={handleSimulateAdvance}
+                disabled={!selectedSimId}
+              >
+                <FontAwesomeIcon icon={faForwardStep} />
+                Avanzar estado
+              </button>
+
+              <button
+                type="button"
+                className="manager-simulator-button secondary"
+                onClick={handleResetOrders}
+              >
+                <FontAwesomeIcon icon={faRotateLeft} />
+                Reiniciar
+              </button>
+            </div>
+
+          </div>
+        )}
+
+
         {/* MONITOR DE PEDIDOS */}
         <div className="manager-section-header">
           <h2>Monitor de pedidos</h2>
 
-          <div className="manager-filters" role="group" aria-label="Filtrar por estado">
+          <div className="manager-filters" role="group" aria-label="Filtrar por etapa">
             {FILTERS.map((filter) => (
               <button
                 key={filter.key}
@@ -247,16 +457,19 @@ function ManagerDashboard() {
         {visibleOrders.length === 0 ? (
           <div className="manager-empty">
             <FontAwesomeIcon icon={faBoxOpen} />
-            <h3>No hay pedidos en este estado</h3>
+            <h3>No hay pedidos en esta etapa</h3>
             <p>Cuando llegue uno aparecerá aquí.</p>
           </div>
         ) : (
           <div className="manager-orders-grid">
             {visibleOrders.map((order) => {
-              const currentIndex = getStatusIndex(order.status);
-              const isReady = order.status === "ready";
+              const flow = getFlow(order);
+              const currentIndex = flow.indexOf(order.status);
+              const stage = STAGES[order.status];
+
               const isCash = order.payment.type === "cash";
               const isDelivery = order.deliveryType === "delivery";
+              const paymentStatus = PAYMENT_STATUS[order.paymentStatus];
 
               return (
                 <article
@@ -298,64 +511,46 @@ function ManagerDashboard() {
                     </ul>
                   </div>
 
+                  {/* PAGO: método y estado del dinero */}
                   <div className="manager-order-meta">
-                    <span
-                      className={`manager-payment-badge ${
-                        isCash ? "cash" : "paid"
-                      }`}
-                    >
-                      <FontAwesomeIcon
-                        icon={isCash ? faMoneyBillWave : faCreditCard}
-                      />
-                      {isCash ? "Efectivo" : "Pagado con tarjeta"}
-                    </span>
+                    <div className="manager-payment">
+                      <span className="manager-payment-method">
+                        <FontAwesomeIcon
+                          icon={isCash ? faMoneyBillWave : faCreditCard}
+                        />
+                        {isCash ? "Efectivo" : "Tarjeta"}
+                      </span>
+
+                      <span
+                        className={`manager-payment-status ${order.paymentStatus}`}
+                      >
+                        <FontAwesomeIcon icon={paymentStatus.icon} />
+                        {paymentStatus.label}
+                      </span>
+                    </div>
 
                     <strong className="manager-order-total">
                       {formatMoney(order.total)}
                     </strong>
                   </div>
 
-                  {/* PASOS */}
-                  <ol className="manager-steps" aria-label="Estado del pedido">
-                    {STATUS_FLOW.map((step, index) => (
-                      <li
-                        key={step.key}
-                        className={`manager-step ${
-                          index < currentIndex
-                            ? "done"
-                            : index === currentIndex
-                            ? "current"
-                            : ""
-                        }`}
-                        aria-current={index === currentIndex ? "step" : undefined}
-                      >
-                        {step.label}
-                      </li>
-                    ))}
-                  </ol>
+                  {/* ETAPA (SOLO LECTURA) */}
+                  <div className="manager-stage">
+                    <span className={`manager-stage-badge ${order.status}`}>
+                      <FontAwesomeIcon icon={stage.icon} />
+                      {getStageLabel(order)}
+                    </span>
 
-                  {/* ACCIONES */}
-                  <div className="manager-order-actions">
-                    <button
-                      type="button"
-                      className="manager-advance-button"
-                      disabled={isReady}
-                      onClick={() => changeStatus(order.id, 1)}
-                    >
-                      {isReady && <FontAwesomeIcon icon={faMotorcycle} />}
-                      {isReady ? getWaitingLabel(order) : getAdvanceLabel(order)}
-                    </button>
-
-                    {currentIndex > 0 && (
-                      <button
-                        type="button"
-                        className="manager-undo-button"
-                        onClick={() => changeStatus(order.id, -1)}
-                      >
-                        <FontAwesomeIcon icon={faRotateLeft} />
-                        Regresar un paso
-                      </button>
-                    )}
+                    <div className="manager-progress" aria-hidden="true">
+                      {flow.map((stageKey, index) => (
+                        <span
+                          key={stageKey}
+                          className={`manager-progress-segment ${
+                            index <= currentIndex ? "filled" : ""
+                          }`}
+                        />
+                      ))}
+                    </div>
                   </div>
 
                 </article>

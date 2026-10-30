@@ -97,6 +97,13 @@
   font-weight: 900;
 }
 
+.manager-summary-card small {
+  color: #D94F70;
+
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
 
 /* =========================
    MONITOR DE PEDIDOS
@@ -176,8 +183,8 @@
 }
 
 .manager-filter-button:focus-visible,
-.manager-advance-button:focus-visible,
-.manager-undo-button:focus-visible {
+.manager-simulator-button:focus-visible,
+.manager-simulator-select:focus-visible {
   outline: 3px solid rgba(217, 79, 112, 0.45);
   outline-offset: 3px;
 }
@@ -214,6 +221,10 @@
   background-color: #fff3f6;
 }
 
+.manager-order-card.completed {
+  background-color: rgba(255, 255, 255, 0.65);
+}
+
 .manager-order-top {
   display: flex;
   align-items: flex-start;
@@ -243,7 +254,8 @@
 }
 
 .manager-type-badge,
-.manager-payment-badge {
+.manager-payment-method,
+.manager-payment-status {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -262,14 +274,30 @@
   color: #3E2723;
 }
 
-.manager-payment-badge.cash {
-  background-color: rgba(217, 79, 112, 0.12);
-  color: #D94F70;
+
+/* PAGO: método y estado del dinero */
+
+.manager-payment {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
-.manager-payment-badge.paid {
+.manager-payment-method {
+  border: 1px solid rgba(62, 39, 35, 0.2);
+
+  background-color: transparent;
+  color: #3E2723;
+}
+
+.manager-payment-status.paid {
   background-color: rgba(62, 39, 35, 0.08);
   color: #3E2723;
+}
+
+.manager-payment-status.pending {
+  background-color: rgba(217, 79, 112, 0.12);
+  color: #D94F70;
 }
 
 
@@ -308,6 +336,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 12px;
 }
 
@@ -316,103 +345,186 @@
 }
 
 
-/* PASOS */
+/* ETAPA DEL PEDIDO (solo lectura) */
 
-.manager-steps {
-  display: flex;
-  gap: 6px;
-
-  list-style: none;
-}
-
-.manager-step {
-  flex: 1;
-
-  padding: 7px 4px;
-
-  border-radius: 12px;
-
-  background-color: rgba(62, 39, 35, 0.08);
-  color: rgba(62, 39, 35, 0.6);
-
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-align: center;
-}
-
-.manager-step.done {
-  background-color: rgba(217, 79, 112, 0.12);
-  color: #D94F70;
-}
-
-.manager-step.current {
-  background-color: #D94F70;
-  color: #F5F0E6;
-}
-
-
-/* ACCIONES */
-
-.manager-order-actions {
+.manager-stage {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 12px;
 
   margin-top: auto;
 }
 
-.manager-advance-button {
-  width: 100%;
-  min-height: 46px;
-
+.manager-stage-badge {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 10px;
+
+  min-height: 46px;
+  padding: 10px 14px;
+
+  border: 1.5px solid transparent;
+  border-radius: 25px;
+
+  font-size: 0.92rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.manager-stage-badge.received {
+  border-color: rgba(62, 39, 35, 0.25);
+  color: #3E2723;
+}
+
+.manager-stage-badge.preparing {
+  background-color: rgba(217, 79, 112, 0.12);
+  color: #D94F70;
+}
+
+.manager-stage-badge.ready {
+  background-color: #D94F70;
+  color: #F5F0E6;
+}
+
+.manager-stage-badge.delivering {
+  background-color: #3E2723;
+  color: #F5F0E6;
+}
+
+.manager-stage-badge.completed {
+  background-color: rgba(62, 39, 35, 0.08);
+  color: #3E2723;
+}
+
+.manager-progress {
+  display: flex;
+  gap: 4px;
+}
+
+.manager-progress-segment {
+  flex: 1;
+  height: 6px;
+
+  border-radius: 6px;
+
+  background-color: rgba(62, 39, 35, 0.1);
+}
+
+.manager-progress-segment.filled {
+  background-color: #D94F70;
+}
+
+
+/* SIMULADOR DE PRUEBAS (solo desarrollo) */
+
+.manager-simulator {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+
+  margin-bottom: 40px;
+  padding: 18px 22px;
+
+  border: 2px dashed rgba(62, 39, 35, 0.25);
+  border-radius: 20px;
+
+  background-color: rgba(255, 255, 255, 0.55);
+}
+
+.manager-simulator-text {
+  flex: 1 1 240px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.manager-simulator-text strong {
+  display: flex;
+  align-items: center;
   gap: 8px;
 
-  padding: 12px;
+  color: #D94F70;
 
-  border: none;
-  border-radius: 25px;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+}
+
+.manager-simulator-text span {
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+
+.manager-simulator-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.manager-simulator-select {
+  max-width: 100%;
+  min-height: 44px;
+  padding: 0 14px;
+
+  border: 1px solid rgba(62, 39, 35, 0.2);
+  border-radius: 10px;
+
+  background-color: #fff;
+  color: #3E2723;
+
+  font-family: inherit;
+  font-size: 0.88rem;
+
+  cursor: pointer;
+}
+
+.manager-simulator-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  min-height: 44px;
+  padding: 10px 18px;
+
+  border: 1px solid #3E2723;
+  border-radius: 22px;
 
   background-color: #3E2723;
   color: #F5F0E6;
 
-  font-weight: 800;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
 
   cursor: pointer;
 
   transition: 0.3s ease;
 }
 
-.manager-advance-button:hover {
+.manager-simulator-button:hover {
+  border-color: #D94F70;
   background-color: #D94F70;
 }
 
-.manager-advance-button:disabled {
-  background-color: #b8b0aa;
-  cursor: not-allowed;
-  opacity: 0.7;
+.manager-simulator-button.secondary {
+  background-color: transparent;
+  color: #3E2723;
 }
 
-.manager-undo-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+.manager-simulator-button.secondary:hover {
+  color: #F5F0E6;
+}
 
-  border: none;
-  background: transparent;
+.manager-simulator-button:disabled {
+  border-color: #b8b0aa;
+  background-color: #b8b0aa;
   color: #3E2723;
 
-  font-size: 0.82rem;
-  text-decoration: underline;
-
-  cursor: pointer;
-}
-
-.manager-undo-button:hover {
-  color: #D94F70;
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 
 
@@ -475,7 +587,7 @@
 @media (prefers-reduced-motion: reduce) {
   .manager-order-card,
   .manager-filter-button,
-  .manager-advance-button {
+  .manager-simulator-button {
     transition: none;
   }
 }
