@@ -5,7 +5,7 @@ export const mockUser = {
   lastName: "Barahona",
 
   email: "joshua@email.com",
-  phone: "8888-8888",
+  phone: " ",
 
   addresses: [
     {
