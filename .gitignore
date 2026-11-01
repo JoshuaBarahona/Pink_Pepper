@@ -1,0 +1,30 @@
+node_modules/
+
+# Variables de entorno (nunca versionar secretos)
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Artefactos de compilacion
+dist/
+dist-ssr/
+build/
+*.tsbuildinfo
+*.local
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-error.log*
+
+# Cobertura y pruebas
+coverage/
+.nyc_output/
+
+# Editores y sistema operativo
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
