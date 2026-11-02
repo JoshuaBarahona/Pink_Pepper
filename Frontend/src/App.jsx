@@ -1,3 +1,5 @@
+import { Routes, Route } from "react-router-dom";
+import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import { Routes, Route, useLocation } from "react-router-dom";
 
 import Navbar from "./components/Navbar/Navbar";
@@ -10,6 +12,9 @@ import Cart from "./pages/Cart/Cart";
 import Checkout from "./pages/Checkout/Checkout";
 import Profile from "./pages/Profile/Profile";
 import OrderConfirmation from "./pages/OrderConfirmation/OrderConfirmation";
+import PaymentMethods from "./pages/PaymentMethods/PaymentMethods";
+
+import DriverDashboard from "./pages/Driver/DriverDashboard";
 
 import AdminDashboard from "./pages/AdminDashboard/AdminDashboard";
 import DriverDashboard from "./pages/DriverDashboard/DriverDashboard";
@@ -37,6 +42,15 @@ function App() {
         <Route path="/menu" element={<Menu />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+
+        {/* Rutas de Cliente (Protegidas) */}
+        <Route path="/carrito" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
+        <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+        <Route path="/perfil" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/pedido-confirmado" element={<ProtectedRoute><OrderConfirmation /></ProtectedRoute>} />
+        <Route path="/metodos-pago" element={<ProtectedRoute><PaymentMethods /></ProtectedRoute>} />
+
+        <Route path="/repartidor" element={ <ProtectedRoute allowedRoles={["repartidor", "admin"]}> <DriverDashboard /> </ProtectedRoute>} />
         <Route path="/carrito" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/perfil" element={<Profile />} />

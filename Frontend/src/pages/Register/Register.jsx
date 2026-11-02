@@ -32,6 +32,7 @@ const [formData, setFormData] = useState({
 const [error, setError] = useState("");
 const [isSubmitting, setIsSubmitting] = useState(false);
 
+
 function handleChange(e) {
   const { name, value, type, checked } = e.target;
 
@@ -39,21 +40,42 @@ function handleChange(e) {
     ...current,
     [name]: type === "checkbox" ? checked : value,
   }));
+
+  setError("");
 }
+
 
 async function handleSubmit(e) {
   e.preventDefault();
   setError("");
 
-  if (!formData.firstName.trim() || !formData.lastName.trim()) {
+  const firstName = formData.firstName.trim().replace(/\s+/g, " ");
+  const middleName = formData.middleName.trim().replace(/\s+/g, " ");
+  const lastName = formData.lastName.trim().replace(/\s+/g, " ");
+  const secondLastName = formData.secondLastName.trim().replace(/\s+/g, " ");
+  const email = formData.email.trim().toLowerCase();
+
+  if (!firstName || !lastName) {
     setError("El primer nombre y el primer apellido son obligatorios.");
     return;
   }
 
-  if (formData.password.length < 8) {
-    setError("La contraseña debe tener al menos 8 caracteres.");
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!emailPattern.test(email)) {
+    setError("Ingresa un correo electrónico válido.");
     return;
   }
+
+  if (formData.password.length < 8) {
+  setError("La contraseña debe tener al menos 8 caracteres.");
+  return;
+}
+
+if (!/[^A-Za-z0-9\s]/.test(formData.password)) {
+  setError("La contraseña debe incluir al menos un carácter especial, como @, # o !.");
+  return;
+}
 
   if (formData.password !== formData.confirmPassword) {
     setError("Las contraseñas no coinciden.");
@@ -69,22 +91,21 @@ async function handleSubmit(e) {
     setIsSubmitting(true);
 
     await register({
-      firstName: formData.firstName.trim().replace(/\s+/g, " "),
-      middleName: formData.middleName.trim().replace(/\s+/g, " "),
-      lastName: formData.lastName.trim().replace(/\s+/g, " "),
-      secondLastName: formData.secondLastName.trim().replace(/\s+/g, " "),
-      email: formData.email.trim().toLowerCase(),
+      firstName,
+      middleName,
+      lastName,
+      secondLastName,
+      email,
       password: formData.password,
     });
 
-    navigate("/perfil", { replace: true });
+    navigate("/", { replace: true });
   } catch (err) {
     setError(err.message || "No se pudo crear la cuenta.");
   } finally {
     setIsSubmitting(false);
   }
 }
-
 
   return (
     <main className="register-page">
@@ -298,17 +319,26 @@ async function handleSubmit(e) {
           </label>
 
 
+{error && (
+  <p className="register-error" role="alert">
+    {error}
+  </p>
+)}
+
           {/* BOTÓN */}
-          <button
-            type="submit"
-            className="register-button"
-          >
+          
+<button
+  type="submit"
+  className="register-button"
+  disabled={isSubmitting}
+>
+  {isSubmitting ? "Creando cuenta..." : "Crear cuenta"}
 
-            Crear cuenta
+  {!isSubmitting && (
+    <FontAwesomeIcon icon={faArrowRight} />
+  )}
+</button>
 
-            <FontAwesomeIcon icon={faArrowRight} />
-
-          </button>
 
         </form>
 

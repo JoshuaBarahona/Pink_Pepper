@@ -1,51 +1,24 @@
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
-import PaymentCardForm from "../../components/PaymentCardForm/PaymentCardForm";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
 import "./Profile.css";
 
 function Profile() {
-  const { user, loadingUser, updateUser, logout} = useAuth();
-  const navigate = useNavigate();
+  const { user, loadingUser, updateUser } = useAuth();
 
   const [isEditing, setIsEditing] = useState(false);
+  const [profileError, setProfileError] = useState("");
 
   const [formData, setFormData] = useState({
     firstName: "",
+    middleName: "",
     lastName: "",
+    secondLastName: "",
     email: "",
     phone: "",
   });
 
   const [showAddressForm, setShowAddressForm] = useState(false);
 const [editingAddressId, setEditingAddressId] = useState(null);
-const [showPaymentForm, setShowPaymentForm] = useState(false);
-
-function handleAddPayment() {
-  setShowPaymentForm(true);
-}
-
-function handleCancelPayment() {
-  setShowPaymentForm(false);
-}
-
-function handleSavePayment(newPayment) {
-  const currentPayments = user.paymentMethods ?? [];
-
-  updateUser({
-    ...user,
-    paymentMethods: [
-      ...currentPayments,
-      {
-        ...newPayment,
-        isDefault: currentPayments.length === 0,
-      },
-    ],
-  });
-
-  setShowPaymentForm(false);
-}
 
 const [addressForm, setAddressForm] = useState({
   label: "",
@@ -55,8 +28,10 @@ const [addressForm, setAddressForm] = useState({
 
   function handleEdit() {
   setFormData({
-    firstName: user.firstName,
-    lastName: user.lastName,
+    firstName: user.firstName || "",
+    middleName: user.middleName || "",
+    lastName: user.lastName || "",
+    secondLastName: user.secondLastName || "",
     email: user.email,
     phone: user.phone,
   });
@@ -71,24 +46,77 @@ function handleChange(e) {
     ...currentData,
     [name]: value,
   }));
+
+  setProfileError("");
 }
+
 
 function handleCancel() {
   setIsEditing(false);
 }
 
+function normalizeName(value) {
+  return value.trim().replace(/\s+/g, " ");
+}
+
+
 function handleSave(e) {
   e.preventDefault();
+  setProfileError("");
+
+  const firstName = normalizeName(formData.firstName);
+  const middleName = normalizeName(formData.middleName);
+  const lastName = normalizeName(formData.lastName);
+  const secondLastName = normalizeName(formData.secondLastName);
+  const email = formData.email.trim().toLowerCase();
+  const phone = formData.phone.trim();
+
+  if (!firstName || !lastName) {
+    setProfileError(
+      "El primer nombre y el primer apellido son obligatorios."
+    );
+    return;
+  }
+
+  if (!email) {
+    setProfileError("Debes ingresar un correo electrónico.");
+    return;
+  }
+
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!emailPattern.test(email)) {
+    setProfileError(
+      "Ingresa un correo electrónico con un formato válido."
+    );
+    return;
+  }
+
+  if (!phone) {
+    setProfileError("Debes ingresar un número de teléfono.");
+    return;
+  }
 
   const updatedUser = {
     ...user,
-    ...formData,
+    firstName,
+    middleName,
+    lastName,
+    secondLastName,
+    email,
+    phone,
   };
 
-  updateUser(updatedUser);
-
-  setIsEditing(false);
+  try {
+    updateUser(updatedUser);
+    setIsEditing(false);
+  } catch (error) {
+    setProfileError(
+      error.message || "No se pudieron guardar los cambios."
+    );
+  }
 }
+
 
 function handleAddressChange(e) {
   const { name, value } = e.target;
@@ -210,47 +238,6 @@ function handleSetDefaultAddress(addressId) {
   });
 }
 
-function handleSetDefaultPayment(paymentId) {
-  const updatedPaymentMethods = user.paymentMethods.map(
-    (payment) => ({
-      ...payment,
-      isDefault: payment.id === paymentId,
-    })
-  );
-
-  updateUser({
-    ...user,
-    paymentMethods: updatedPaymentMethods,
-  });
-}
-
-function handleDeletePayment(paymentId) {
-  const paymentToDelete = user.paymentMethods.find(
-    (payment) => payment.id === paymentId
-  );
-
-  let updatedPaymentMethods = user.paymentMethods.filter(
-    (payment) => payment.id !== paymentId
-  );
-
-  if (
-    paymentToDelete?.isDefault &&
-    updatedPaymentMethods.length > 0
-  ) {
-    updatedPaymentMethods = updatedPaymentMethods.map(
-      (payment, index) => ({
-        ...payment,
-        isDefault: index === 0,
-      })
-    );
-  }
-
-  updateUser({
-    ...user,
-    paymentMethods: updatedPaymentMethods,
-  });
-}
-
   if (loadingUser) {
     return (
       <main className="profile-page">
@@ -267,11 +254,6 @@ function handleDeletePayment(paymentId) {
     );
   }
 
-  function handleLogout() {
-  logout();
-  navigate("/login");
-}
-
   return (
     <main className="profile-page">
 
@@ -285,25 +267,6 @@ function handleDeletePayment(paymentId) {
             direcciones de entrega.
           </p>
         </header>
-
-        <button
-  type="button"
-  onClick={handleLogout}
->
-  Cerrar sesión (prueba)
-</button>
-
-        <Link
-  to="/checkout"
-  style={{
-    display: "inline-block",
-    marginBottom: "20px",
-    color: "#D94F70",
-    fontWeight: "bold",
-  }}
->
-  Volver a Checkout (prueba)
-</Link>
 
         <section className="profile-section">
 
@@ -326,11 +289,18 @@ function handleDeletePayment(paymentId) {
     <div className="personal-info">
 
       <div>
-        <span>Nombre</span>
-        <strong>
-          {user.firstName} {user.lastName}
-        </strong>
-      </div>
+  <span>Nombre completo</span>
+  <strong>
+    {[
+      user.firstName,
+      user.middleName,
+      user.lastName,
+      user.secondLastName,
+    ]
+      .filter((name) => name?.trim())
+      .join(" ")}
+  </strong>
+</div>
 
       <div>
         <span>Correo electrónico</span>
@@ -351,37 +321,60 @@ function handleDeletePayment(paymentId) {
       onSubmit={handleSave}
     >
 
+    {profileError && (
+  <p className="profile-error" role="alert">
+    {profileError}
+  </p>
+)}
       <div className="profile-form-grid">
 
-        <div className="profile-field">
-          <label htmlFor="firstName">
-            Nombre
-          </label>
 
-          <input
-            id="firstName"
-            type="text"
-            name="firstName"
-            value={formData.firstName}
-            onChange={handleChange}
-            required
-          />
-        </div>
+<div className="profile-field">
+  <label htmlFor="firstName">Primer nombre</label>
+  <input
+    id="firstName"
+    type="text"
+    name="firstName"
+    value={formData.firstName}
+    onChange={handleChange}
+    required
+  />
+</div>
 
-        <div className="profile-field">
-          <label htmlFor="lastName">
-            Apellidos
-          </label>
+<div className="profile-field">
+  <label htmlFor="middleName">Segundo nombre (opcional)</label>
+  <input
+    id="middleName"
+    type="text"
+    name="middleName"
+    value={formData.middleName}
+    onChange={handleChange}
+  />
+</div>
 
-          <input
-            id="lastName"
-            type="text"
-            name="lastName"
-            value={formData.lastName}
-            onChange={handleChange}
-            required
-          />
-        </div>
+<div className="profile-field">
+  <label htmlFor="lastName">Primer apellido</label>
+  <input
+    id="lastName"
+    type="text"
+    name="lastName"
+    value={formData.lastName}
+    onChange={handleChange}
+    required
+  />
+</div>
+
+<div className="profile-field">
+  <label htmlFor="secondLastName">Segundo apellido (opcional)</label>
+  <input
+    id="secondLastName"
+    type="text"
+    name="secondLastName"
+    value={formData.secondLastName}
+    onChange={handleChange}
+  />
+</div>
+
 
         <div className="profile-field">
           <label htmlFor="email">
@@ -615,116 +608,6 @@ function handleDeletePayment(paymentId) {
 </div>
 
         </section>
-
-        <section className="profile-section">
-
-          <div className="profile-section-header">
-
-            <div>
-  <h2>Métodos de pago</h2>
-
-  <p className="payment-description">
-    Administra las tarjetas asociadas a tu cuenta.
-  </p>
-</div>
-
-{!showPaymentForm && (
-  <button
-    type="button"
-    className="profile-add-button"
-    onClick={handleAddPayment}
-  >
-    + Agregar tarjeta
-  </button>
-)}
-
-</div>
-
-{showPaymentForm && (
-  <PaymentCardForm
-    onSave={handleSavePayment}
-    onCancel={handleCancelPayment}
-  />
-)}
-
-          {user.paymentMethods.length === 0 ? (
-
-            <div className="empty-payment-methods">
-              <p>No tienes tarjetas registradas.</p>
-            </div>
-
-          ) : (
-
-            <div className="payment-methods-list">
-
-              {user.paymentMethods.map((payment) => (
-
-                <article
-                  className="payment-card"
-                  key={payment.id}
-                >
-
-                  <div className="payment-card-header">
-
-                    <div>
-                      <span className="payment-brand">
-                        {payment.brand}
-                      </span>
-
-                      <h3>
-                        •••• {payment.last4}
-                      </h3>
-                    </div>
-
-                    {payment.isDefault && (
-                      <span className="default-address">
-                        Principal
-                      </span>
-                    )}
-
-                  </div>
-
-                  <p className="payment-expiration">
-                    Vence {payment.expirationMonth}/
-                    {payment.expirationYear}
-                  </p>
-
-                  <div className="payment-actions">
-
-  {!payment.isDefault && (
-    <button
-      type="button"
-      className="payment-default-button"
-      onClick={() =>
-        handleSetDefaultPayment(payment.id)
-      }
-    >
-      Hacer principal
-    </button>
-  )}
-
-  <button
-    type="button"
-    className="payment-delete-button"
-    onClick={() =>
-      handleDeletePayment(payment.id)
-    }
-  >
-    Eliminar
-  </button>
-
-</div>
-
-                </article>
-
-              ))}
-
-            </div>
-
-          )}
-
-        </section>
-
       </div>
 
     </main>

@@ -1,3 +1,9 @@
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { createContext, useContext, useEffect, useState } from "react";
 
 import {
@@ -5,6 +11,8 @@ import {
   loginMockUser,
   saveUser,
   logoutUser,
+  registerUser,
+  loginUser,
 } from "../services/userService";
 
 import {
@@ -18,7 +26,25 @@ const AuthContext = createContext();
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loadingUser, setLoadingUser] = useState(true);
+  const [welcomeTrigger, setWelcomeTrigger] = useState(0);
 
+  // Registrar un usuario
+  async function register(userData) {
+  const registeredUser = await registerUser(userData);
+  setUser(registeredUser);
+  setWelcomeTrigger((current) => current + 1);
+  return registeredUser;
+}
+
+  // Iniciar sesión
+  async function login(email, password) {
+  const loggedUser = await loginUser(email, password);
+  setUser(loggedUser);
+  setWelcomeTrigger((current) => current + 1);
+  return loggedUser;
+}
+
+  // Cargar la sesión existente
   useEffect(() => {
     async function loadUser() {
       try {
@@ -37,7 +63,7 @@ export function AuthProvider({ children }) {
     loadUser();
   }, []);
 
-  // Inicio de sesión temporal
+  // Inicio de sesión temporal con usuario de prueba
   async function loginAsMockUser() {
     // Evita que quede una sesión de admin activa al mismo tiempo
     logoutTestAdmin();
@@ -74,6 +100,7 @@ export function AuthProvider({ children }) {
   // Cerrar sesión
   function logout() {
     logoutUser();
+
     logoutTestAdmin();
     setUser(null);
   }
@@ -90,6 +117,9 @@ export function AuthProvider({ children }) {
         loginAsMockUser,
         loginAsAdmin,
         logout,
+        register,
+        login,
+        welcomeTrigger,
       }}
     >
       {children}

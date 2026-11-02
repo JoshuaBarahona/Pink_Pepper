@@ -327,3 +327,355 @@
   text-align: center;
   padding: 70px 20px;
 }
+
+
+/* =========================
+   CUENTA Y MENU DE PERFIL
+========================= */
+
+.navbar-profile-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.navbar-profile-button {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid #3E2723;
+  border-radius: 50%;
+  background-color: transparent;
+  color: #3E2723;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.navbar-profile-button:hover,
+.navbar-profile-button[aria-expanded="true"] {
+  background-color: #F4C9D6;
+  color: #D94F70;
+}
+
+.navbar-account-loading {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.navbar-profile-menu {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: 260px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background-color: #FFFDF8;
+  border: 1px solid rgba(62, 39, 35, 0.12);
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(62, 39, 35, 0.15);
+  z-index: 100;
+}
+
+.navbar-profile-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 12px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid rgba(62, 39, 35, 0.12);
+  overflow-wrap: anywhere;
+}
+
+.navbar-profile-heading strong {
+  color: #3E2723;
+  font-size: 0.95rem;
+}
+
+.navbar-profile-heading span {
+  color: #806C64;
+  font-size: 0.78rem;
+}
+
+.navbar-profile-menu a,
+.navbar-profile-menu .navbar-logout-button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  color: #3E2723;
+  font: inherit;
+  font-size: 0.88rem;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.navbar-profile-menu a:hover {
+  background-color: #FBE7EF;
+  color: #B52F72;
+}
+
+.navbar-profile-menu .navbar-logout-button {
+  color: #C13C53;
+}
+
+.navbar-profile-menu .navbar-logout-button:hover {
+  background-color: #FFF0F2;
+}
+
+.navbar-profile-menu svg {
+  width: 16px;
+}
+
+.navbar-mobile-toggle {
+  display: none;
+  width: 42px;
+  height: 42px;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #3E2723;
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.navbar-mobile-toggle:hover {
+  background-color: #F4C9D6;
+}
+
+/* =========================
+   TABLETS Y MOVILES
+========================= */
+
+@media (max-width: 900px) {
+  .navbar {
+    height: 74px;
+    padding: 0 4%;
+    gap: 12px;
+  }
+
+  .navbar-logo {
+    gap: 8px;
+    font-size: 1.05rem;
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
+
+  .logo-icon {
+    font-size: 1.3rem;
+  }
+
+  .navbar-links {
+    gap: 22px;
+  }
+
+  .navbar-links a {
+    font-size: 0.85rem;
+  }
+
+  .navbar-actions {
+    gap: 8px;
+  }
+
+  .navbar-login {
+    padding: 9px 12px;
+  }
+}
+
+/* =========================
+   MENU HAMBURGUESA
+========================= */
+
+@media (max-width: 680px) {
+  .navbar {
+    height: 70px;
+    padding: 0 4%;
+  }
+
+  .navbar-logo {
+    font-size: 0.98rem;
+    letter-spacing: 0.7px;
+    gap: 7px;
+  }
+
+  .logo-icon {
+    font-size: 1.2rem;
+  }
+
+  .navbar-actions {
+    gap: 5px;
+  }
+
+  .navbar-cart,
+  .navbar-profile-button,
+  .navbar-mobile-toggle {
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+  }
+
+  .navbar-login {
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    justify-content: center;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .navbar-login span {
+    display: none;
+  }
+
+  .navbar-mobile-toggle {
+    display: flex;
+  }
+
+  .navbar-links {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 10px 4% 16px;
+    background-color: #F5F0E6;
+    border-bottom: 1px solid rgba(62, 39, 35, 0.12);
+    box-shadow: 0 12px 18px rgba(62, 39, 35, 0.08);
+    z-index: 50;
+  }
+
+  .navbar-links.navbar-links-open {
+    display: flex;
+  }
+
+  .navbar-links a {
+    padding: 14px 10px;
+    font-size: 0.95rem;
+  }
+
+  .navbar-links a::after {
+    display: none;
+  }
+
+  .navbar-links a.active {
+    color: #D94F70;
+    background-color: rgba(244, 201, 214, 0.35);
+    border-radius: 8px;
+  }
+
+  .navbar-profile-menu {
+    position: fixed;
+    top: 76px;
+    right: 4%;
+    width: min(280px, 92vw);
+  }
+}
+
+@media (max-width: 360px) {
+  .navbar {
+    padding: 0 3%;
+    gap: 4px;
+  }
+
+  .navbar-logo {
+    font-size: 0.85rem;
+    letter-spacing: 0;
+    gap: 5px;
+  }
+
+  .logo-icon {
+    font-size: 1.05rem;
+  }
+
+  .navbar-actions {
+    gap: 2px;
+  }
+
+  .navbar-cart,
+  .navbar-profile-button,
+  .navbar-mobile-toggle,
+  .navbar-login {
+    width: 34px;
+    height: 34px;
+  }
+}
+
+.navbar-profile-button {
+  font-weight: 800;
+  font-size: 1rem;
+}
+
+/* =========================
+   SALUDO DE BIENVENIDA
+========================= */
+
+/* =========================
+   SALUDO DE BIENVENIDA
+========================= */
+
+/* =========================
+   SALUDO DE BIENVENIDA
+========================= */
+
+.navbar-welcome {
+  position: absolute;
+  top: 50%;
+  
+  /* Lo anclamos a la derecha. El margen derecho (130px) hace que quede justo a la izquierda del perfil */
+  right: 7%;
+  margin-right: 130px; 
+  
+  transform: translateY(-50%);
+
+  color: #3E2723;
+  font-size: 0.9rem;
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+
+  opacity: 1;
+  transition: opacity 500ms ease, transform 500ms ease;
+}
+
+.navbar-welcome.navbar-welcome-fading {
+  opacity: 0;
+  transform: translateY(-50%) translateX(10px);
+}
+
+/* Ajustes para tablets */
+@media (max-width: 900px) {
+  .navbar-welcome {
+    right: 4%;
+    margin-right: 110px;
+    font-size: 0.82rem;
+  }
+}
+
+/* En móviles el espacio es muy reducido y el perfil se hace círculo, mejor ocultarlo */
+@media (max-width: 680px) {
+  .navbar-welcome {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navbar-welcome {
+    transition: none;
+  }
+}

@@ -175,7 +175,9 @@
 
 @media (max-width: 750px) {
   .personal-info,
-  .addresses-list {
+  .addresses-list,
+  .payment-methods-list,
+  .profile-form-grid {
     grid-template-columns: 1fr;
   }
 
@@ -514,4 +516,17 @@
 .payment-form .profile-save-button:disabled {
   opacity: 0.45;
   cursor: not-allowed;
+}
+
+
+.profile-error {
+  color: #B4233D;
+  background-color: #FFF0F2;
+  border: 1px solid #F2B8C2;
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin: 0 0 16px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.5;
 }
