@@ -12,6 +12,7 @@ dist-ssr/
 build/
 *.tsbuildinfo
 *.local
+backend/src/generated/
 
 # Logs
 *.log
