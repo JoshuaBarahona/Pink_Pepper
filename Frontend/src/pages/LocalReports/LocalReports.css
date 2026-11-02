@@ -1,0 +1,359 @@
+/* =========================
+   PÁGINA
+========================= */
+
+.reports-page {
+  min-height: calc(100vh - 82px);
+  padding: 70px 8%;
+  background-color: #F5F0E6;
+  color: #3E2723;
+}
+
+.reports-container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+
+/* =========================
+   ENCABEZADO
+========================= */
+
+.reports-header {
+  margin-bottom: 30px;
+}
+
+.reports-header > span {
+  color: #D94F70;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.reports-header h1 {
+  margin: 6px 0;
+  font-size: 2.5rem;
+}
+
+.reports-header p {
+  opacity: 0.7;
+}
+
+
+/* =========================
+   CUADRÍCULA Y TARJETAS
+========================= */
+
+.reports-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.reports-card {
+  padding: 28px;
+
+  background-color: #fff;
+  border-radius: 20px;
+
+  box-shadow: 0 8px 25px rgba(62, 39, 35, 0.08);
+}
+
+.reports-sales {
+  grid-column: 1 / -1;
+}
+
+.reports-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+
+  margin-bottom: 25px;
+}
+
+.reports-card-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.reports-card-icon {
+  color: #D94F70;
+  font-size: 1.2rem;
+}
+
+
+/* =========================
+   VENTAS
+========================= */
+
+.reports-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  padding: 5px 12px;
+
+  border-radius: 20px;
+
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.reports-trend.up {
+  background-color: rgba(217, 79, 112, 0.12);
+  color: #D94F70;
+}
+
+.reports-trend.down {
+  background-color: rgba(62, 39, 35, 0.08);
+  color: #3E2723;
+}
+
+.reports-sales-figures {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+
+  margin-bottom: 30px;
+}
+
+.reports-big-number {
+  font-size: 2.8rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.reports-sales-stats {
+  display: flex;
+  gap: 35px;
+}
+
+.reports-sales-stats div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.reports-sales-stats span {
+  font-size: 0.85rem;
+  opacity: 0.65;
+}
+
+.reports-sales-stats strong {
+  font-size: 1.2rem;
+}
+
+
+/* GRÁFICO DE BARRAS */
+
+.reports-chart {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+
+  padding-top: 20px;
+
+  border-top: 1px solid rgba(62, 39, 35, 0.12);
+}
+
+.reports-chart-column {
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.reports-chart-value {
+  font-size: 0.75rem;
+  font-weight: 700;
+  opacity: 0.65;
+}
+
+.reports-chart-track {
+  width: 100%;
+  height: 150px;
+
+  display: flex;
+  align-items: flex-end;
+
+  border-radius: 12px;
+
+  background-color: rgba(62, 39, 35, 0.06);
+
+  overflow: hidden;
+}
+
+.reports-chart-bar {
+  width: 100%;
+
+  border-radius: 12px;
+
+  background-color: #3E2723;
+}
+
+.reports-chart-bar.best {
+  background-color: #D94F70;
+}
+
+.reports-chart-day {
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+
+/* =========================
+   RANKING Y REPARTIDORES
+========================= */
+
+.reports-ranking,
+.reports-drivers {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+
+  list-style: none;
+}
+
+.reports-ranking-item,
+.reports-driver {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.reports-rank,
+.reports-driver-avatar {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  font-weight: 900;
+}
+
+.reports-rank {
+  background-color: #D94F70;
+  color: #F5F0E6;
+
+  font-size: 1.05rem;
+}
+
+.reports-driver-avatar {
+  background-color: rgba(217, 79, 112, 0.12);
+  color: #D94F70;
+
+  font-size: 0.85rem;
+}
+
+.reports-ranking-info {
+  flex: 1;
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.reports-ranking-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.reports-ranking-top span {
+  font-size: 0.85rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.reports-ranking-info small {
+  font-size: 0.82rem;
+  opacity: 0.65;
+}
+
+.reports-bar-track {
+  width: 100%;
+  height: 10px;
+
+  border-radius: 10px;
+
+  background-color: rgba(62, 39, 35, 0.08);
+
+  overflow: hidden;
+}
+
+.reports-bar-fill {
+  height: 100%;
+
+  border-radius: 10px;
+
+  background-color: #D94F70;
+}
+
+.reports-time-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  padding: 4px 10px;
+
+  border-radius: 20px;
+
+  background-color: rgba(62, 39, 35, 0.08);
+}
+
+.reports-footnote {
+  margin-top: 22px;
+
+  font-size: 0.82rem;
+  opacity: 0.65;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 900px) {
+  .reports-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 750px) {
+  .reports-page {
+    padding: 40px 5%;
+  }
+
+  .reports-header h1 {
+    font-size: 2rem;
+  }
+
+  .reports-card {
+    padding: 22px;
+  }
+
+  .reports-big-number {
+    font-size: 2.2rem;
+  }
+
+  .reports-chart {
+    gap: 6px;
+  }
+
+  .reports-chart-track {
+    height: 120px;
+  }
+}

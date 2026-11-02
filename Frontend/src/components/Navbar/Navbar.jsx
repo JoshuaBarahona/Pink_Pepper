@@ -11,6 +11,7 @@ import {
   faXmark,
   faCreditCard,
   faRightFromBracket,
+  faUserShield,
 } from "@fortawesome/free-solid-svg-icons";
 
 import "./Navbar.css";
@@ -86,11 +87,13 @@ function Navbar() {
 
   // Variable para saber si es un cliente (logueado o no)
   const isClientView = !user || user.role === "cliente";
+  const { isAdmin } = useAuth();
 
   return (
     <nav className="navbar">
       {/* LOGO */}
       <Link to="/" className="navbar-logo" onClick={closeMenus}>
+      <Link to="/" className="navbar-logo">
         <FontAwesomeIcon icon={faPepperHot} className="logo-icon" />
         <span>PINK PEPPER</span>
       </Link>
@@ -135,6 +138,14 @@ function Navbar() {
             Estadísticas
           </NavLink>
         )}
+      <div className="navbar-links">
+        <Link to="/" className="active">
+          Inicio
+        </Link>
+
+        <Link to="/menu">Menú</Link>
+
+        <a href="#nosotros">Nosotros</a>
       </div>
 
       {/* ACCIONES */}
@@ -240,6 +251,24 @@ function Navbar() {
             Hola, {user?.firstName}
           </div>
         )}
+        <Link to="/carrito" className="navbar-cart" aria-label="Ver carrito">
+          <FontAwesomeIcon icon={faCartShopping} />
+
+          <span className="cart-count">{cartCount}</span>
+        </Link>
+
+        {/* Solo visible con la sesión de admin de prueba */}
+        {isAdmin && (
+          <Link to="/admin" className="navbar-login">
+            <FontAwesomeIcon icon={faUserShield} />
+            <span>Admin</span>
+          </Link>
+        )}
+
+        <Link to="/login" className="navbar-login">
+          <FontAwesomeIcon icon={faUser} />
+          <span>Iniciar sesión</span>
+        </Link>
       </div>
     </nav>
   );

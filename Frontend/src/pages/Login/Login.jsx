@@ -84,6 +84,37 @@ const loggedUser = await login(email, password);
       setIsSubmitting(false);
     }
   }*/
+  const { loginAsMockUser, loginAsAdmin } = useAuth();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  async function handleMockLogin() {
+    try {
+      await loginAsMockUser();
+      navigate("/perfil");
+    } catch (error) {
+      console.error("Error en login de prueba:", error);
+      alert("No se pudo iniciar la sesión de prueba.");
+    }
+  }
+
+  function handleSubmit(e) {
+    e.preventDefault();
+
+    // Por ahora el único acceso con correo y contraseña es el admin de prueba.
+    const adminUser = loginAsAdmin(email, password);
+
+    if (adminUser) {
+      navigate("/admin");
+      return;
+    }
+
+    setError(
+      "Correo o contraseña incorrectos. Por ahora puedes entrar con el usuario de prueba."
+    );
+  }
 
   return (
     <main className="login-page">
@@ -102,6 +133,7 @@ const loggedUser = await login(email, password);
 
         {/* FORMULARIO */}
         <form className="login-form" onSubmit={handleSubmit}>
+
           {/* CORREO */}
           <div className="login-field">
             <label htmlFor="email">Correo electrónico</label>
@@ -117,6 +149,12 @@ const loggedUser = await login(email, password);
                 value={formData.email}
                 onChange={handleChange}
                 autoComplete="email"
+                autoComplete="username"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setError("");
+                }}
                 required
               />
             </div>
@@ -137,6 +175,12 @@ const loggedUser = await login(email, password);
                 value={formData.password}
                 onChange={handleChange}
                 autoComplete="current-password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setError("");
+                }}
                 required
               />
             </div>
@@ -183,11 +227,42 @@ const loggedUser = await login(email, password);
               <FontAwesomeIcon icon={faArrowRight} />
             )}
           </button>
+          {/* ERROR */}
+          {error && (
+            <p className="login-error" role="alert">
+              {error}
+            </p>
+          )}
+
+
+          {/* BOTÓN */}
+          <button type="submit" className="login-button">
+
+            Iniciar sesión
+
+            <FontAwesomeIcon icon={faArrowRight} />
+
+          </button>
+
+          <button
+            type="button"
+            className="login-button"
+            onClick={handleMockLogin}
+            style={{ width: "100%", marginTop: "15px" }}
+          >
+            Entrar como usuario de prueba
+          </button>
+
         </form>
 
         {/* REGISTRO */}
         <div className="login-register">
           <span>¿No tienes una cuenta?</span>
+
+          <Link to="/register">
+            Regístrate
+          </Link>
+        </div>
 
           <Link to="/register">Regístrate</Link>
         </div>

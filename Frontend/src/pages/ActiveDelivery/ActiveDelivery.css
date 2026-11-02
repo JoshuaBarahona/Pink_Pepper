@@ -1,0 +1,418 @@
+/* =========================
+   PÁGINA
+========================= */
+
+.active-delivery-page {
+  min-height: calc(100vh - 82px);
+  padding: 70px 8% 30px;
+  background-color: #f5f0e6;
+  color: #3e2723;
+}
+
+.active-delivery-container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* =========================
+   ENCABEZADO
+========================= */
+
+.active-delivery-header {
+  margin-bottom: 35px;
+}
+
+.active-delivery-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  margin-bottom: 20px;
+
+  color: #d94f70;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.active-delivery-back:hover {
+  text-decoration: underline;
+}
+
+.active-delivery-header > span {
+  display: block;
+
+  color: #d94f70;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.active-delivery-header h1 {
+  margin: 6px 0;
+  font-size: 2.5rem;
+  overflow-wrap: anywhere;
+}
+
+.active-delivery-header p {
+  opacity: 0.7;
+}
+
+/* =========================
+   CONTENIDO
+========================= */
+
+.active-delivery-content {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 30px;
+  align-items: start;
+}
+
+.active-delivery-main {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.active-delivery-section {
+  padding: 25px;
+
+  background-color: #fff;
+  border-radius: 20px;
+
+  box-shadow: 0 8px 25px rgba(62, 39, 35, 0.08);
+}
+
+.active-delivery-section h2 {
+  margin-bottom: 20px;
+}
+
+/* =========================
+   MAPA SIMULADO
+========================= */
+
+.active-delivery-map {
+  position: relative;
+
+  height: 280px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+
+  border-radius: 20px;
+
+  background-color: #f4c9d6;
+  background-image:
+    linear-gradient(rgba(245, 240, 230, 0.55) 2px, transparent 2px),
+    linear-gradient(90deg, rgba(245, 240, 230, 0.55) 2px, transparent 2px);
+  background-size: 48px 48px;
+
+  box-shadow: 0 8px 25px rgba(62, 39, 35, 0.08);
+}
+
+.active-delivery-map-pin {
+  width: 56px;
+  height: 56px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background-color: #d94f70;
+  color: #f5f0e6;
+
+  font-size: 1.4rem;
+
+  box-shadow: 0 0 0 10px rgba(217, 79, 112, 0.22);
+}
+
+.active-delivery-map-label {
+  position: absolute;
+  left: 15px;
+  bottom: 15px;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 8px 14px;
+
+  border-radius: 20px;
+
+  background-color: #f5f0e6;
+  color: #3e2723;
+
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.active-delivery-map-label svg {
+  color: #d94f70;
+}
+
+.active-delivery-map-link {
+  position: absolute;
+  right: 15px;
+  bottom: 15px;
+
+  padding: 8px 16px;
+
+  border-radius: 20px;
+
+  background-color: #3e2723;
+  color: #f5f0e6;
+
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-decoration: none;
+
+  transition: 0.3s ease;
+}
+
+.active-delivery-map-link:hover {
+  background-color: #d94f70;
+}
+
+/* =========================
+   DATOS DEL CLIENTE
+========================= */
+
+.active-delivery-info {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.active-delivery-info-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.active-delivery-info-icon {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background-color: rgba(217, 79, 112, 0.12);
+  color: #d94f70;
+
+  font-size: 0.9rem;
+}
+
+.active-delivery-info-text {
+  flex: 1;
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.active-delivery-info-text span {
+  font-size: 0.85rem;
+  opacity: 0.65;
+}
+
+.active-delivery-info-text strong {
+  font-size: 1rem;
+  overflow-wrap: anywhere;
+}
+
+.active-delivery-call {
+  align-self: center;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  min-height: 40px;
+  padding: 9px 16px;
+
+  border-radius: 20px;
+
+  background-color: #3e2723;
+  color: #f5f0e6;
+
+  font-weight: 700;
+  text-decoration: none;
+
+  transition: 0.3s ease;
+}
+
+.active-delivery-call:hover {
+  background-color: #d94f70;
+}
+
+/* =========================
+   MÉTODO DE PAGO
+========================= */
+
+.active-delivery-payment {
+  border: 2px solid transparent;
+}
+
+/* Efectivo: pide acción, usa el mismo énfasis que .selected en Checkout */
+.active-delivery-payment.cash {
+  border-color: #d94f70;
+  background-color: #fff3f6;
+}
+
+.active-delivery-payment-method {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  margin-bottom: 20px;
+}
+
+.active-delivery-payment-amount {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  padding: 18px 0;
+
+  border-top: 1px solid rgba(62, 39, 35, 0.15);
+  border-bottom: 1px solid rgba(62, 39, 35, 0.15);
+}
+
+.active-delivery-payment-amount span {
+  font-size: 0.85rem;
+  opacity: 0.65;
+}
+
+.active-delivery-payment-amount strong {
+  font-size: 2.2rem;
+  font-weight: 900;
+}
+
+.active-delivery-payment.cash .active-delivery-payment-amount strong {
+  color: #d94f70;
+}
+
+.active-delivery-payment-note {
+  margin-top: 16px;
+
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.active-delivery-payment-note.paid {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.active-delivery-payment-note.paid svg {
+  color: #d94f70;
+}
+
+/* =========================
+   BOTÓN INFERIOR
+========================= */
+
+.active-delivery-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+
+  margin-top: 30px;
+  padding: 16px 0 20px;
+
+  background-color: #f5f0e6;
+  border-top: 1px solid rgba(62, 39, 35, 0.12);
+}
+
+.active-delivery-deliver-button {
+  width: 100%;
+  min-height: 64px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+
+  padding: 18px;
+
+  border: none;
+  border-radius: 30px;
+
+  background-color: #3e2723;
+  color: #f5f0e6;
+
+  font-size: 1.15rem;
+  font-weight: 900;
+
+  cursor: pointer;
+
+  transition: 0.3s ease;
+}
+
+.active-delivery-deliver-button:hover {
+  background-color: #d94f70;
+}
+
+.active-delivery-deliver-button:active {
+  transform: scale(0.99);
+}
+
+.active-delivery-deliver-button:focus-visible,
+.active-delivery-call:focus-visible,
+.active-delivery-map-link:focus-visible,
+.active-delivery-back:focus-visible {
+  outline: 3px solid rgba(217, 79, 112, 0.45);
+  outline-offset: 3px;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 800px) {
+  .active-delivery-page {
+    padding: 40px 5% 20px;
+  }
+
+  .active-delivery-header h1 {
+    font-size: 2rem;
+  }
+
+  .active-delivery-content {
+    grid-template-columns: 1fr;
+  }
+
+  .active-delivery-map {
+    height: 220px;
+  }
+
+  .active-delivery-info-row {
+    flex-wrap: wrap;
+  }
+
+  .active-delivery-call {
+    margin-left: 52px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .active-delivery-deliver-button,
+  .active-delivery-map-link,
+  .active-delivery-call {
+    transition: none;
+  }
+
+  .active-delivery-deliver-button:active {
+    transform: none;
+  }
+}
