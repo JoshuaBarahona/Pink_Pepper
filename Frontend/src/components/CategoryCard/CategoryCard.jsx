@@ -2,9 +2,23 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import "./CategoryCard.css";
 
-function CategoryCard({ image, name, icon }) {
+function CategoryCard({ image, name, icon, onClick }) {
+  function handleKeyDown(e) {
+    if (!onClick) return;
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onClick();
+    }
+  }
+
   return (
-    <article className="category-card">
+    <article
+      className="category-card"
+      onClick={onClick}
+      onKeyDown={handleKeyDown}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+    >
       <div className="category-image">
         <img src={image} alt={name} />
 

@@ -287,10 +287,16 @@
   transition: all 0.3s ease;
 }
 
-.login-button:hover {
+.login-button:hover:not(:disabled) {
   background-color: #d94f70;
 
   transform: translateY(-2px);
+}
+
+.login-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .login-button svg {
@@ -329,30 +335,18 @@
   text-decoration: underline;
 }
 
-
-.login-error {
-  margin: 0;
-  color: #B4233D;
-  font-size: 0.85rem;
-  font-weight: 700;
-  line-height: 1.5;
-}
-
-.login-button:disabled {
-  opacity: 0.65;
-  cursor: not-allowed;
-  transform: none;
 /* ERROR DE ACCESO */
 
 .login-error {
-  margin-top: 4px;
+  margin: 4px 0 0;
   padding: 12px 14px;
 
   border-radius: 10px;
 
   background-color: #fff3f6;
-  color: #d94f70;
+  color: #b4233d;
 
   font-size: 0.85rem;
   font-weight: 700;
+  line-height: 1.5;
 }

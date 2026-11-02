@@ -11,9 +11,17 @@ import {
 
 import "./Login.css";
 
+function getRedirectPathByRole(role) {
+  if (role === "admin") return "/admin";
+  if (role === "driver" || role === "repartidor") return "/repartidor";
+  if (role === "manager" || role === "gerente") return "/gerente";
+  if (role === "kitchen" || role === "cocina") return "/cocina";
+  return "/";
+}
+
 function Login() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, loginAsMockUser } = useAuth();
 
   const [formData, setFormData] = useState({
     email: "",
@@ -42,33 +50,20 @@ function Login() {
     try {
       setIsSubmitting(true);
 
-      await login(
-  formData.email.trim().toLowerCase(),
-  formData.password
-);
+      const loggedUser = await login(
+        formData.email.trim().toLowerCase(),
+        formData.password
+      );
 
-      navigate("/", { replace: true });
+      navigate(getRedirectPathByRole(loggedUser?.role), { replace: true });
     } catch (err) {
       setError(err.message || "No se pudo iniciar sesión.");
     } finally {
       setIsSubmitting(false);
     }
-
-    // Dentro de la función handleSubmit de tu Login.jsx
-const loggedUser = await login(email, password);
-
-      if (loggedUser.role === "repartidor") {
-        navigate("/repartidor");
-      } else if (loggedUser.role === "admin") {
-        navigate("/admin");
-      } else if (loggedUser.role === "gerente") {
-        navigate("/gerente");
-      } else {
-        navigate("/"); // Los clientes van al Home
-      }
   }
 
-  /*async function handleMockLogin() {
+  async function handleMockLogin() {
     setError("");
 
     try {
@@ -78,42 +73,11 @@ const loggedUser = await login(email, password);
 
       navigate("/perfil", { replace: true });
     } catch (err) {
-      setError("No se pudo iniciar la sesión de prueba.");
       console.error("Error en login de prueba:", err);
+      setError("No se pudo iniciar la sesión de prueba.");
     } finally {
       setIsSubmitting(false);
     }
-  }*/
-  const { loginAsMockUser, loginAsAdmin } = useAuth();
-
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-
-  async function handleMockLogin() {
-    try {
-      await loginAsMockUser();
-      navigate("/perfil");
-    } catch (error) {
-      console.error("Error en login de prueba:", error);
-      alert("No se pudo iniciar la sesión de prueba.");
-    }
-  }
-
-  function handleSubmit(e) {
-    e.preventDefault();
-
-    // Por ahora el único acceso con correo y contraseña es el admin de prueba.
-    const adminUser = loginAsAdmin(email, password);
-
-    if (adminUser) {
-      navigate("/admin");
-      return;
-    }
-
-    setError(
-      "Correo o contraseña incorrectos. Por ahora puedes entrar con el usuario de prueba."
-    );
   }
 
   return (
@@ -133,7 +97,6 @@ const loggedUser = await login(email, password);
 
         {/* FORMULARIO */}
         <form className="login-form" onSubmit={handleSubmit}>
-
           {/* CORREO */}
           <div className="login-field">
             <label htmlFor="email">Correo electrónico</label>
@@ -149,12 +112,6 @@ const loggedUser = await login(email, password);
                 value={formData.email}
                 onChange={handleChange}
                 autoComplete="email"
-                autoComplete="username"
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  setError("");
-                }}
                 required
               />
             </div>
@@ -175,12 +132,6 @@ const loggedUser = await login(email, password);
                 value={formData.password}
                 onChange={handleChange}
                 autoComplete="current-password"
-                autoComplete="current-password"
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  setError("");
-                }}
                 required
               />
             </div>
@@ -223,46 +174,23 @@ const loggedUser = await login(email, password);
           >
             {isSubmitting ? "Iniciando sesión..." : "Iniciar sesión"}
 
-            {!isSubmitting && (
-              <FontAwesomeIcon icon={faArrowRight} />
-            )}
-          </button>
-          {/* ERROR */}
-          {error && (
-            <p className="login-error" role="alert">
-              {error}
-            </p>
-          )}
-
-
-          {/* BOTÓN */}
-          <button type="submit" className="login-button">
-
-            Iniciar sesión
-
-            <FontAwesomeIcon icon={faArrowRight} />
-
+            {!isSubmitting && <FontAwesomeIcon icon={faArrowRight} />}
           </button>
 
           <button
             type="button"
             className="login-button"
+            disabled={isSubmitting}
             onClick={handleMockLogin}
-            style={{ width: "100%", marginTop: "15px" }}
+            style={{ width: "100%", marginTop: "10px" }}
           >
             Entrar como usuario de prueba
           </button>
-
         </form>
 
         {/* REGISTRO */}
         <div className="login-register">
           <span>¿No tienes una cuenta?</span>
-
-          <Link to="/register">
-            Regístrate
-          </Link>
-        </div>
 
           <Link to="/register">Regístrate</Link>
         </div>

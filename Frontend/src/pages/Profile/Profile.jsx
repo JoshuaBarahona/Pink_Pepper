@@ -18,225 +18,216 @@ function Profile() {
   });
 
   const [showAddressForm, setShowAddressForm] = useState(false);
-const [editingAddressId, setEditingAddressId] = useState(null);
+  const [editingAddressId, setEditingAddressId] = useState(null);
 
-const [addressForm, setAddressForm] = useState({
-  label: "",
-  address: "",
-  reference: "",
-});
+  const [addressForm, setAddressForm] = useState({
+    label: "",
+    address: "",
+    reference: "",
+  });
+
+  const addresses = user?.addresses ?? [];
 
   function handleEdit() {
-  setFormData({
-    firstName: user.firstName || "",
-    middleName: user.middleName || "",
-    lastName: user.lastName || "",
-    secondLastName: user.secondLastName || "",
-    email: user.email,
-    phone: user.phone,
-  });
+    setFormData({
+      firstName: user.firstName || "",
+      middleName: user.middleName || "",
+      lastName: user.lastName || "",
+      secondLastName: user.secondLastName || "",
+      email: user.email || "",
+      phone: user.phone || "",
+    });
 
-  setIsEditing(true);
-}
-
-function handleChange(e) {
-  const { name, value } = e.target;
-
-  setFormData((currentData) => ({
-    ...currentData,
-    [name]: value,
-  }));
-
-  setProfileError("");
-}
-
-
-function handleCancel() {
-  setIsEditing(false);
-}
-
-function normalizeName(value) {
-  return value.trim().replace(/\s+/g, " ");
-}
-
-
-function handleSave(e) {
-  e.preventDefault();
-  setProfileError("");
-
-  const firstName = normalizeName(formData.firstName);
-  const middleName = normalizeName(formData.middleName);
-  const lastName = normalizeName(formData.lastName);
-  const secondLastName = normalizeName(formData.secondLastName);
-  const email = formData.email.trim().toLowerCase();
-  const phone = formData.phone.trim();
-
-  if (!firstName || !lastName) {
-    setProfileError(
-      "El primer nombre y el primer apellido son obligatorios."
-    );
-    return;
+    setProfileError("");
+    setIsEditing(true);
   }
 
-  if (!email) {
-    setProfileError("Debes ingresar un correo electrónico.");
-    return;
+  function handleChange(e) {
+    const { name, value } = e.target;
+
+    setFormData((currentData) => ({
+      ...currentData,
+      [name]: value,
+    }));
+
+    setProfileError("");
   }
 
-  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-  if (!emailPattern.test(email)) {
-    setProfileError(
-      "Ingresa un correo electrónico con un formato válido."
-    );
-    return;
-  }
-
-  if (!phone) {
-    setProfileError("Debes ingresar un número de teléfono.");
-    return;
-  }
-
-  const updatedUser = {
-    ...user,
-    firstName,
-    middleName,
-    lastName,
-    secondLastName,
-    email,
-    phone,
-  };
-
-  try {
-    updateUser(updatedUser);
+  function handleCancel() {
+    setProfileError("");
     setIsEditing(false);
-  } catch (error) {
-    setProfileError(
-      error.message || "No se pudieron guardar los cambios."
-    );
   }
-}
 
+  function normalizeName(value) {
+    return value.trim().replace(/\s+/g, " ");
+  }
 
-function handleAddressChange(e) {
-  const { name, value } = e.target;
+  function handleSave(e) {
+    e.preventDefault();
+    setProfileError("");
 
-  setAddressForm((currentData) => ({
-    ...currentData,
-    [name]: value,
-  }));
-}
+    const firstName = normalizeName(formData.firstName);
+    const middleName = normalizeName(formData.middleName);
+    const lastName = normalizeName(formData.lastName);
+    const secondLastName = normalizeName(formData.secondLastName);
+    const email = formData.email.trim().toLowerCase();
+    const phone = formData.phone.trim();
 
-function handleAddAddress() {
-  setEditingAddressId(null);
+    if (!firstName || !lastName) {
+      setProfileError(
+        "El primer nombre y el primer apellido son obligatorios."
+      );
+      return;
+    }
 
-  setAddressForm({
-    label: "",
-    address: "",
-    reference: "",
-  });
+    if (!email) {
+      setProfileError("Debes ingresar un correo electrónico.");
+      return;
+    }
 
-  setShowAddressForm(true);
-}
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-function handleEditAddress(address) {
-  setEditingAddressId(address.id);
+    if (!emailPattern.test(email)) {
+      setProfileError(
+        "Ingresa un correo electrónico con un formato válido."
+      );
+      return;
+    }
 
-  setAddressForm({
-    label: address.label,
-    address: address.address,
-    reference: address.reference || "",
-  });
+    if (!phone) {
+      setProfileError("Debes ingresar un número de teléfono.");
+      return;
+    }
 
-  setShowAddressForm(true);
-}
-
-function handleCancelAddress() {
-  setShowAddressForm(false);
-  setEditingAddressId(null);
-
-  setAddressForm({
-    label: "",
-    address: "",
-    reference: "",
-  });
-}
-
-function handleSaveAddress(e) {
-  e.preventDefault();
-
-  let updatedAddresses;
-
-  if (editingAddressId !== null) {
-    updatedAddresses = user.addresses.map((address) =>
-      address.id === editingAddressId
-        ? {
-            ...address,
-            ...addressForm,
-          }
-        : address
-    );
-  } else {
-    const newAddress = {
-      id: Date.now(),
-      ...addressForm,
-      isDefault: user.addresses.length === 0,
+    const updatedUser = {
+      ...user,
+      firstName,
+      middleName,
+      lastName,
+      secondLastName,
+      email,
+      phone,
     };
 
-    updatedAddresses = [
-      ...user.addresses,
-      newAddress,
-    ];
+    try {
+      updateUser(updatedUser);
+      setIsEditing(false);
+    } catch (error) {
+      setProfileError(
+        error.message || "No se pudieron guardar los cambios."
+      );
+    }
   }
 
-  updateUser({
-    ...user,
-    addresses: updatedAddresses,
-  });
+  function handleAddressChange(e) {
+    const { name, value } = e.target;
 
-  handleCancelAddress();
-}
+    setAddressForm((currentData) => ({
+      ...currentData,
+      [name]: value,
+    }));
+  }
 
-function handleDeleteAddress(addressId) {
-  const addressToDelete = user.addresses.find(
-    (address) => address.id === addressId
-  );
+  function handleAddAddress() {
+    setEditingAddressId(null);
 
-  let updatedAddresses = user.addresses.filter(
-    (address) => address.id !== addressId
-  );
+    setAddressForm({
+      label: "",
+      address: "",
+      reference: "",
+    });
 
-  if (
-    addressToDelete?.isDefault &&
-    updatedAddresses.length > 0
-  ) {
-    updatedAddresses = updatedAddresses.map(
-      (address, index) => ({
+    setShowAddressForm(true);
+  }
+
+  function handleEditAddress(address) {
+    setEditingAddressId(address.id);
+
+    setAddressForm({
+      label: address.label,
+      address: address.address,
+      reference: address.reference || "",
+    });
+
+    setShowAddressForm(true);
+  }
+
+  function handleCancelAddress() {
+    setShowAddressForm(false);
+    setEditingAddressId(null);
+
+    setAddressForm({
+      label: "",
+      address: "",
+      reference: "",
+    });
+  }
+
+  function handleSaveAddress(e) {
+    e.preventDefault();
+
+    let updatedAddresses;
+
+    if (editingAddressId !== null) {
+      updatedAddresses = addresses.map((address) =>
+        address.id === editingAddressId
+          ? {
+              ...address,
+              ...addressForm,
+            }
+          : address
+      );
+    } else {
+      const newAddress = {
+        id: Date.now(),
+        ...addressForm,
+        isDefault: addresses.length === 0,
+      };
+
+      updatedAddresses = [...addresses, newAddress];
+    }
+
+    updateUser({
+      ...user,
+      addresses: updatedAddresses,
+    });
+
+    handleCancelAddress();
+  }
+
+  function handleDeleteAddress(addressId) {
+    const addressToDelete = addresses.find(
+      (address) => address.id === addressId
+    );
+
+    let updatedAddresses = addresses.filter(
+      (address) => address.id !== addressId
+    );
+
+    if (addressToDelete?.isDefault && updatedAddresses.length > 0) {
+      updatedAddresses = updatedAddresses.map((address, index) => ({
         ...address,
         isDefault: index === 0,
-      })
-    );
+      }));
+    }
+
+    updateUser({
+      ...user,
+      addresses: updatedAddresses,
+    });
   }
 
-  updateUser({
-    ...user,
-    addresses: updatedAddresses,
-  });
-}
-
-function handleSetDefaultAddress(addressId) {
-  const updatedAddresses = user.addresses.map(
-    (address) => ({
+  function handleSetDefaultAddress(addressId) {
+    const updatedAddresses = addresses.map((address) => ({
       ...address,
       isDefault: address.id === addressId,
-    })
-  );
+    }));
 
-  updateUser({
-    ...user,
-    addresses: updatedAddresses,
-  });
-}
+    updateUser({
+      ...user,
+      addresses: updatedAddresses,
+    });
+  }
 
   if (loadingUser) {
     return (
@@ -256,360 +247,291 @@ function handleSetDefaultAddress(addressId) {
 
   return (
     <main className="profile-page">
-
       <div className="profile-container">
-
         <header className="profile-header">
           <span>MI CUENTA</span>
           <h1>Mi perfil</h1>
           <p>
-            Administra tu información personal y tus
-            direcciones de entrega.
+            Administra tu información personal y tus direcciones de entrega.
           </p>
         </header>
 
         <section className="profile-section">
+          <div className="profile-section-header">
+            <h2>Información personal</h2>
 
-  <div className="profile-section-header">
-    <h2>Información personal</h2>
+            {!isEditing && (
+              <button
+                type="button"
+                className="profile-secondary-button"
+                onClick={handleEdit}
+              >
+                Editar
+              </button>
+            )}
+          </div>
 
-    {!isEditing && (
-      <button
-        type="button"
-        className="profile-secondary-button"
-        onClick={handleEdit}
-      >
-        Editar
-      </button>
-    )}
-  </div>
+          {!isEditing ? (
+            <div className="personal-info">
+              <div>
+                <span>Nombre completo</span>
+                <strong>
+                  {[
+                    user.firstName,
+                    user.middleName,
+                    user.lastName,
+                    user.secondLastName,
+                  ]
+                    .filter((name) => name?.trim())
+                    .join(" ")}
+                </strong>
+              </div>
 
-  {!isEditing ? (
+              <div>
+                <span>Correo electrónico</span>
+                <strong>{user.email}</strong>
+              </div>
 
-    <div className="personal-info">
+              <div>
+                <span>Teléfono</span>
+                <strong>{user.phone?.trim() || "Sin registrar"}</strong>
+              </div>
+            </div>
+          ) : (
+            <form className="profile-edit-form" onSubmit={handleSave}>
+              {profileError && (
+                <p className="profile-error" role="alert">
+                  {profileError}
+                </p>
+              )}
 
-      <div>
-  <span>Nombre completo</span>
-  <strong>
-    {[
-      user.firstName,
-      user.middleName,
-      user.lastName,
-      user.secondLastName,
-    ]
-      .filter((name) => name?.trim())
-      .join(" ")}
-  </strong>
-</div>
+              <div className="profile-form-grid">
+                <div className="profile-field">
+                  <label htmlFor="firstName">Primer nombre</label>
+                  <input
+                    id="firstName"
+                    type="text"
+                    name="firstName"
+                    value={formData.firstName}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
 
-      <div>
-        <span>Correo electrónico</span>
-        <strong>{user.email}</strong>
-      </div>
+                <div className="profile-field">
+                  <label htmlFor="middleName">Segundo nombre (opcional)</label>
+                  <input
+                    id="middleName"
+                    type="text"
+                    name="middleName"
+                    value={formData.middleName}
+                    onChange={handleChange}
+                  />
+                </div>
 
-      <div>
-        <span>Teléfono</span>
-        <strong>{user.phone}</strong>
-      </div>
+                <div className="profile-field">
+                  <label htmlFor="lastName">Primer apellido</label>
+                  <input
+                    id="lastName"
+                    type="text"
+                    name="lastName"
+                    value={formData.lastName}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
 
-    </div>
+                <div className="profile-field">
+                  <label htmlFor="secondLastName">
+                    Segundo apellido (opcional)
+                  </label>
+                  <input
+                    id="secondLastName"
+                    type="text"
+                    name="secondLastName"
+                    value={formData.secondLastName}
+                    onChange={handleChange}
+                  />
+                </div>
 
-  ) : (
+                <div className="profile-field">
+                  <label htmlFor="email">Correo electrónico</label>
 
-    <form
-      className="profile-edit-form"
-      onSubmit={handleSave}
-    >
+                  <input
+                    id="email"
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
 
-    {profileError && (
-  <p className="profile-error" role="alert">
-    {profileError}
-  </p>
-)}
-      <div className="profile-form-grid">
+                <div className="profile-field">
+                  <label htmlFor="phone">Teléfono</label>
 
+                  <input
+                    id="phone"
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+              </div>
 
-<div className="profile-field">
-  <label htmlFor="firstName">Primer nombre</label>
-  <input
-    id="firstName"
-    type="text"
-    name="firstName"
-    value={formData.firstName}
-    onChange={handleChange}
-    required
-  />
-</div>
+              <div className="profile-form-actions">
+                <button
+                  type="button"
+                  className="profile-cancel-button"
+                  onClick={handleCancel}
+                >
+                  Cancelar
+                </button>
 
-<div className="profile-field">
-  <label htmlFor="middleName">Segundo nombre (opcional)</label>
-  <input
-    id="middleName"
-    type="text"
-    name="middleName"
-    value={formData.middleName}
-    onChange={handleChange}
-  />
-</div>
-
-<div className="profile-field">
-  <label htmlFor="lastName">Primer apellido</label>
-  <input
-    id="lastName"
-    type="text"
-    name="lastName"
-    value={formData.lastName}
-    onChange={handleChange}
-    required
-  />
-</div>
-
-<div className="profile-field">
-  <label htmlFor="secondLastName">Segundo apellido (opcional)</label>
-  <input
-    id="secondLastName"
-    type="text"
-    name="secondLastName"
-    value={formData.secondLastName}
-    onChange={handleChange}
-  />
-</div>
-
-
-        <div className="profile-field">
-          <label htmlFor="email">
-            Correo electrónico
-          </label>
-
-          <input
-            id="email"
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <div className="profile-field">
-          <label htmlFor="phone">
-            Teléfono
-          </label>
-
-          <input
-            id="phone"
-            type="tel"
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-      </div>
-
-      <div className="profile-form-actions">
-
-        <button
-          type="button"
-          className="profile-cancel-button"
-          onClick={handleCancel}
-        >
-          Cancelar
-        </button>
-
-        <button
-          type="submit"
-          className="profile-save-button"
-        >
-          Guardar cambios
-        </button>
-
-      </div>
-
-    </form>
-
-  )}
-
-</section>
+                <button type="submit" className="profile-save-button">
+                  Guardar cambios
+                </button>
+              </div>
+            </form>
+          )}
+        </section>
 
         <section className="profile-section">
-
           <div className="profile-section-header">
             <h2>Mis direcciones</h2>
 
-            {!showAddressForm &&(
-            <button
-              type="button"
-              className="profile-add-button" onClick={handleAddAddress}
-            >
-              + Agregar dirección
-            </button>
+            {!showAddressForm && (
+              <button
+                type="button"
+                className="profile-add-button"
+                onClick={handleAddAddress}
+              >
+                + Agregar dirección
+              </button>
             )}
           </div>
 
           {showAddressForm && (
+            <form className="address-form" onSubmit={handleSaveAddress}>
+              <h3>
+                {editingAddressId !== null
+                  ? "Editar dirección"
+                  : "Nueva dirección"}
+              </h3>
 
-  <form
-    className="address-form"
-    onSubmit={handleSaveAddress}
-  >
+              <div className="profile-form-grid">
+                <div className="profile-field">
+                  <label htmlFor="addressLabel">Nombre de la dirección</label>
 
-    <h3>
-      {editingAddressId !== null
-        ? "Editar dirección"
-        : "Nueva dirección"}
-    </h3>
+                  <input
+                    id="addressLabel"
+                    type="text"
+                    name="label"
+                    value={addressForm.label}
+                    onChange={handleAddressChange}
+                    placeholder="Ej. Casa, Trabajo..."
+                    required
+                  />
+                </div>
 
-    <div className="profile-form-grid">
+                <div className="profile-field">
+                  <label htmlFor="address">Dirección</label>
 
-      <div className="profile-field">
-        <label htmlFor="addressLabel">
-          Nombre de la dirección
-        </label>
+                  <input
+                    id="address"
+                    type="text"
+                    name="address"
+                    value={addressForm.address}
+                    onChange={handleAddressChange}
+                    placeholder="Escribe la dirección"
+                    required
+                  />
+                </div>
 
-        <input
-          id="addressLabel"
-          type="text"
-          name="label"
-          value={addressForm.label}
-          onChange={handleAddressChange}
-          placeholder="Ej. Casa, Trabajo..."
-          required
-        />
-      </div>
+                <div className="profile-field address-reference-field">
+                  <label htmlFor="reference">Referencia</label>
 
-      <div className="profile-field">
-        <label htmlFor="address">
-          Dirección
-        </label>
+                  <input
+                    id="reference"
+                    type="text"
+                    name="reference"
+                    value={addressForm.reference}
+                    onChange={handleAddressChange}
+                    placeholder="Ej. Casa azul, portón negro..."
+                  />
+                </div>
+              </div>
 
-        <input
-          id="address"
-          type="text"
-          name="address"
-          value={addressForm.address}
-          onChange={handleAddressChange}
-          placeholder="Escribe la dirección"
-          required
-        />
-      </div>
+              <div className="profile-form-actions">
+                <button
+                  type="button"
+                  className="profile-cancel-button"
+                  onClick={handleCancelAddress}
+                >
+                  Cancelar
+                </button>
 
-      <div className="profile-field address-reference-field">
-        <label htmlFor="reference">
-          Referencia
-        </label>
-
-        <input
-          id="reference"
-          type="text"
-          name="reference"
-          value={addressForm.reference}
-          onChange={handleAddressChange}
-          placeholder="Ej. Casa azul, portón negro..."
-        />
-      </div>
-
-    </div>
-
-    <div className="profile-form-actions">
-
-      <button
-        type="button"
-        className="profile-cancel-button"
-        onClick={handleCancelAddress}
-      >
-        Cancelar
-      </button>
-
-      <button
-        type="submit"
-        className="profile-save-button"
-      >
-        {editingAddressId !== null
-          ? "Guardar cambios"
-          : "Agregar dirección"}
-      </button>
-
-    </div>
-
-  </form>
-
-)}
+                <button type="submit" className="profile-save-button">
+                  {editingAddressId !== null
+                    ? "Guardar cambios"
+                    : "Agregar dirección"}
+                </button>
+              </div>
+            </form>
+          )}
 
           <div className="addresses-list">
+            {addresses.map((address) => (
+              <article className="address-card" key={address.id}>
+                <div className="address-header">
+                  <h3>{address.label}</h3>
 
-  {user.addresses.map((address) => (
-    <article
-      className="address-card"
-      key={address.id}
-    >
+                  {address.isDefault && (
+                    <span className="default-address">Principal</span>
+                  )}
+                </div>
 
-      <div className="address-header">
+                <p className="address-text">{address.address}</p>
 
-        <h3>{address.label}</h3>
+                {address.reference && (
+                  <p className="address-reference">
+                    Referencia: {address.reference}
+                  </p>
+                )}
 
-        {address.isDefault && (
-          <span className="default-address">
-            Principal
-          </span>
-        )}
+                <div className="address-actions">
+                  {!address.isDefault && (
+                    <button
+                      type="button"
+                      className="default-button"
+                      onClick={() => handleSetDefaultAddress(address.id)}
+                    >
+                      Hacer principal
+                    </button>
+                  )}
 
-      </div>
+                  <button
+                    type="button"
+                    onClick={() => handleEditAddress(address)}
+                  >
+                    Editar
+                  </button>
 
-      <p className="address-text">
-        {address.address}
-      </p>
-
-      {address.reference && (
-        <p className="address-reference">
-          Referencia: {address.reference}
-        </p>
-      )}
-
-      <div className="address-actions">
-
-        {!address.isDefault && (
-          <button
-            type="button"
-            className="default-button"
-            onClick={() =>
-              handleSetDefaultAddress(address.id)
-            }
-          >
-            Hacer principal
-          </button>
-        )}
-
-        <button
-          type="button"
-          onClick={() =>
-            handleEditAddress(address)
-          }
-        >
-          Editar
-        </button>
-
-        <button
-          type="button"
-          className="delete-address"
-          onClick={() =>
-            handleDeleteAddress(address.id)
-          }
-        >
-          Eliminar
-        </button>
-
-      </div>
-
-    </article>
-  ))}
-
-</div>
-
+                  <button
+                    type="button"
+                    className="delete-address"
+                    onClick={() => handleDeleteAddress(address.id)}
+                  >
+                    Eliminar
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
         </section>
       </div>
-
     </main>
   );
 }

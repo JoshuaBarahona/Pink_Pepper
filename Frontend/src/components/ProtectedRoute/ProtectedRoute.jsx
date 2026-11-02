@@ -1,51 +1,61 @@
-// src/components/ProtectedRoute/ProtectedRoute.jsx
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
-function ProtectedRoute({ children, allowedRoles }) {
-  const { user, isAuthenticated, loadingUser } = useAuth();
+const ROLE_ALIASES = {
+  repartidor: "driver",
+  driver: "driver",
+  gerente: "manager",
+  manager: "manager",
+  cocina: "kitchen",
+  kitchen: "kitchen",
+  cliente: "customer",
+  customer: "customer",
+  admin: "admin",
+};
 
-  if (loadingUser) {
-    return <div style={{ textAlign: "center", padding: "50px" }}>Cargando...</div>;
-  }
-
-  // Si no está logueado, lo mandamos al login
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-
-  // Si está logueado pero su rol no está permitido, lo mandamos al inicio
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
-import { Navigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
+function normalizeRole(role) {
+  return ROLE_ALIASES[role] || role || "customer";
+}
 
 /*
-  Protege una ruta según el rol del usuario.
+  Protege una ruta según autenticación y, opcionalmente, según el rol del usuario.
   El rol "admin" puede entrar a todas las rutas protegidas.
 
   Uso:
+  <ProtectedRoute>
+    <Profile />
+  </ProtectedRoute>
+
   <ProtectedRoute allowedRoles={["manager"]}>
     <ManagerDashboard />
   </ProtectedRoute>
 */
-function ProtectedRoute({ allowedRoles = [], children }) {
+function ProtectedRoute({ allowedRoles, children }) {
   const { user, loadingUser } = useAuth();
 
   // Espera a saber si hay sesión antes de decidir
-  if (loadingUser) return null;
+  if (loadingUser) {
+    return (
+      <div style={{ textAlign: "center", padding: "50px" }}>Cargando...</div>
+    );
+  }
 
   if (!user) {
     return <Navigate to="/login" replace />;
   }
 
-  const hasAccess = user.role === "admin" || allowedRoles.includes(user.role);
+  if (Array.isArray(allowedRoles)) {
+    const userRole = normalizeRole(user.role);
+    const normalizedAllowed = allowedRoles.map(normalizeRole);
+    const hasAccess =
+      userRole === "admin" || normalizedAllowed.includes(userRole);
 
-  if (!hasAccess) {
-    return <Navigate to="/" replace />;
+    if (!hasAccess) {
+      return <Navigate to="/" replace />;
+    }
   }
 
   return children;
 }
 
-export default ProtectedRoute;
 export default ProtectedRoute;

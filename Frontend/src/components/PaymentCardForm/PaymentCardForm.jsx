@@ -57,31 +57,34 @@ function PaymentCardForm({ onSave, onCancel }) {
   }
 
   function handleSubmit() {
-  if (!isValid) return;
+    if (!isValid) return;
 
-  const newPayment = {
-    id: crypto.randomUUID(),
-    type: "card",
-    brand,
-    last4: number.replace(/\D/g, "").slice(-4),
-    holder: holder.trim().toUpperCase(),
-    expirationMonth: String(expirationMonth).padStart(2, "0"),
-    expirationYear: String(expirationYear).slice(-2),
-    isMock: true,
-  };
+    const newPayment = {
+      id: crypto.randomUUID(),
+      type: "card",
+      brand,
+      last4: number.replace(/\D/g, "").slice(-4),
+      holder: holder.trim().toUpperCase(),
+      expirationMonth: String(expirationMonth).padStart(2, "0"),
+      expirationYear: String(expirationYear).slice(-2),
+      isMock: true,
+    };
 
-  onSave(newPayment);
+    onSave(newPayment);
 
-  setPaymentForm({ ...initialPaymentForm });
-  setIsCardFlipped(false);
-}
+    setPaymentForm({ ...initialPaymentForm });
+    setIsCardFlipped(false);
+  }
+
+  function handleKeyDown(e) {
+    if (e.key === "Enter" && e.target.tagName === "INPUT") {
+      e.preventDefault();
+      handleSubmit();
+    }
+  }
 
   return (
-    <div
-      className="payment-card-form"
-      onSubmit={handleSubmit}
-      autoComplete="off"
-    >
+    <div className="payment-card-form" onKeyDown={handleKeyDown}>
       <h3>Agregar tarjeta de prueba</h3>
 
       <p className="payment-form-note">
@@ -118,7 +121,7 @@ function PaymentCardForm({ onSave, onCancel }) {
             value={holder}
             onChange={handleChange}
             placeholder="Nombre del titular"
-            required
+            autoComplete="off"
           />
         </div>
 
@@ -136,7 +139,7 @@ function PaymentCardForm({ onSave, onCancel }) {
             value={number}
             onChange={handleChange}
             placeholder="0000 0000 0000 0000"
-            required
+            autoComplete="off"
           />
 
           <small className="payment-brand-indicator">
@@ -172,7 +175,7 @@ function PaymentCardForm({ onSave, onCancel }) {
             value={expirationMonth}
             onChange={handleChange}
             placeholder="MM"
-            required
+            autoComplete="off"
           />
         </div>
 
@@ -190,7 +193,7 @@ function PaymentCardForm({ onSave, onCancel }) {
             value={expirationYear}
             onChange={handleChange}
             placeholder="AAAA"
-            required
+            autoComplete="off"
           />
         </div>
 
@@ -210,7 +213,7 @@ function PaymentCardForm({ onSave, onCancel }) {
             onFocus={() => setIsCardFlipped(true)}
             onBlur={() => setIsCardFlipped(false)}
             placeholder="123"
-            required
+            autoComplete="off"
           />
         </div>
       </div>
@@ -225,13 +228,13 @@ function PaymentCardForm({ onSave, onCancel }) {
         </button>
 
         <button
-  type="button"
-  className="payment-card-save"
-  disabled={!isValid}
-  onClick={handleSubmit}
->
-  Guardar tarjeta
-</button>
+          type="button"
+          className="payment-card-save"
+          disabled={!isValid}
+          onClick={handleSubmit}
+        >
+          Guardar tarjeta
+        </button>
       </div>
     </div>
   );

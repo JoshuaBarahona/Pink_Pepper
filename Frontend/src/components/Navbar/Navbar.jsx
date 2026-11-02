@@ -18,22 +18,28 @@ import "./Navbar.css";
 
 function Navbar() {
   const { cartCount } = useCart();
-  const { user, isAuthenticated, loadingUser, logout, welcomeTrigger } = useAuth();
+  const {
+    user,
+    isAuthenticated,
+    isAdmin,
+    loadingUser,
+    logout,
+    welcomeTrigger,
+  } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const locationKey = `${location.pathname}${location.search}${location.hash}`;
+  const [mobileMenuKey, setMobileMenuKey] = useState(null);
+  const [profileMenuKey, setProfileMenuKey] = useState(null);
+
+  const isMobileMenuOpen = mobileMenuKey === locationKey;
+  const isProfileMenuOpen = profileMenuKey === locationKey;
 
   const profileMenuRef = useRef(null);
 
-  const [showWelcome, setShowWelcome] = useState(false);
-  const [isWelcomeFading, setIsWelcomeFading] = useState(false);
-
-  useEffect(() => {
-    setIsMobileMenuOpen(false);
-    setIsProfileMenuOpen(false);
-  }, [location.pathname, location.search]);
+  const [fadingTrigger, setFadingTrigger] = useState(0);
+  const [hiddenTrigger, setHiddenTrigger] = useState(0);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -41,7 +47,7 @@ function Navbar() {
         profileMenuRef.current &&
         !profileMenuRef.current.contains(event.target)
       ) {
-        setIsProfileMenuOpen(false);
+        setProfileMenuKey(null);
       }
     }
 
@@ -52,31 +58,26 @@ function Navbar() {
     };
   }, []);
 
-  function handleLogout() {
-    logout();
-    setIsProfileMenuOpen(false);
-    setIsMobileMenuOpen(false);
-    navigate("/", { replace: true });
+  function closeMenus() {
+    setMobileMenuKey(null);
+    setProfileMenuKey(null);
   }
 
-  function closeMenus() {
-    setIsMobileMenuOpen(false);
-    setIsProfileMenuOpen(false);
+  function handleLogout() {
+    logout();
+    closeMenus();
+    navigate("/", { replace: true });
   }
 
   useEffect(() => {
     if (welcomeTrigger === 0) return;
 
-    setShowWelcome(true);
-    setIsWelcomeFading(false);
-
     const fadeTimer = setTimeout(() => {
-      setIsWelcomeFading(true);
+      setFadingTrigger(welcomeTrigger);
     }, 4500);
 
     const hideTimer = setTimeout(() => {
-      setShowWelcome(false);
-      setIsWelcomeFading(false);
+      setHiddenTrigger(welcomeTrigger);
     }, 5000);
 
     return () => {
@@ -85,15 +86,21 @@ function Navbar() {
     };
   }, [welcomeTrigger]);
 
-  // Variable para saber si es un cliente (logueado o no)
-  const isClientView = !user || user.role === "cliente";
-  const { isAdmin } = useAuth();
+  const showWelcome = welcomeTrigger > 0 && hiddenTrigger < welcomeTrigger;
+  const isWelcomeFading = fadingTrigger === welcomeTrigger;
+
+  const role = user?.role;
+  const isCustomer =
+    !user || !role || role === "cliente" || role === "customer";
+  const showStoreNavigation = isCustomer || isAdmin;
+  const isDriver = role === "driver" || role === "repartidor";
+  const isManager = role === "manager" || role === "gerente";
+  const isKitchen = role === "kitchen" || role === "cocina";
 
   return (
     <nav className="navbar">
       {/* LOGO */}
       <Link to="/" className="navbar-logo" onClick={closeMenus}>
-      <Link to="/" className="navbar-logo">
         <FontAwesomeIcon icon={faPepperHot} className="logo-icon" />
         <span>PINK PEPPER</span>
       </Link>
@@ -105,8 +112,8 @@ function Navbar() {
           isMobileMenuOpen ? "navbar-links-open" : ""
         }`}
       >
-        {/* Enlaces exclusivos para clientes (o gente sin loguear) */}
-        {isClientView && (
+        {/* Enlaces de la tienda (clientes, visitantes y admin en pruebas) */}
+        {showStoreNavigation && (
           <>
             <NavLink to="/" end onClick={closeMenus}>
               Inicio
@@ -121,38 +128,35 @@ function Navbar() {
         )}
 
         {/* Enlaces exclusivos por Rol */}
-        {!loadingUser && isAuthenticated && user?.role === "repartidor" && (
+        {!loadingUser && isAuthenticated && isDriver && (
           <NavLink to="/repartidor" onClick={closeMenus}>
             Mis Entregas
           </NavLink>
         )}
 
-        {!loadingUser && isAuthenticated && user?.role === "admin" && (
-          <NavLink to="/admin" onClick={closeMenus}>
-            Panel Admin
-          </NavLink>
-        )}
-
-        {!loadingUser && isAuthenticated && user?.role === "gerente" && (
+        {!loadingUser && isAuthenticated && isManager && (
           <NavLink to="/gerente" onClick={closeMenus}>
-            Estadísticas
+            Panel Gerente
           </NavLink>
         )}
-      <div className="navbar-links">
-        <Link to="/" className="active">
-          Inicio
-        </Link>
 
-        <Link to="/menu">Menú</Link>
+        {!loadingUser && isAuthenticated && isKitchen && (
+          <NavLink to="/cocina" onClick={closeMenus}>
+            Cocina
+          </NavLink>
+        )}
 
-        <a href="#nosotros">Nosotros</a>
+        {!loadingUser && isAuthenticated && isAdmin && (
+          <NavLink to="/admin" onClick={closeMenus}>
+            <FontAwesomeIcon icon={faUserShield} /> Panel Admin
+          </NavLink>
+        )}
       </div>
 
       {/* ACCIONES */}
       <div className="navbar-actions">
-        
-        {/* Carrito: Solo visible para clientes */}
-        {isClientView && (
+        {/* Carrito */}
+        {showStoreNavigation && (
           <Link
             to="/carrito"
             className="navbar-cart"
@@ -182,7 +186,11 @@ function Navbar() {
               aria-label="Abrir menú de perfil"
               aria-expanded={isProfileMenuOpen}
               aria-haspopup="true"
-              onClick={() => setIsProfileMenuOpen((open) => !open)}
+              onClick={() =>
+                setProfileMenuKey((prev) =>
+                  prev === locationKey ? null : locationKey
+                )
+              }
             >
               {user?.firstName?.trim()?.charAt(0)?.toUpperCase() || (
                 <FontAwesomeIcon icon={faUser} />
@@ -201,8 +209,7 @@ function Navbar() {
                   <span>Mi perfil</span>
                 </Link>
 
-                {/* Métodos de pago: Los repartidores no necesitan tarjeta para trabajar */}
-                {user?.role === "cliente" && (
+                {(isCustomer || isAdmin) && (
                   <Link to="/metodos-pago" onClick={closeMenus}>
                     <FontAwesomeIcon icon={faCreditCard} />
                     <span>Agregar tarjeta</span>
@@ -234,7 +241,11 @@ function Navbar() {
           aria-label={isMobileMenuOpen ? "Cerrar menú" : "Abrir menú"}
           aria-expanded={isMobileMenuOpen}
           aria-controls="navbar-navigation"
-          onClick={() => setIsMobileMenuOpen((open) => !open)}
+          onClick={() =>
+            setMobileMenuKey((prev) =>
+              prev === locationKey ? null : locationKey
+            )
+          }
         >
           <FontAwesomeIcon icon={isMobileMenuOpen ? faXmark : faBars} />
         </button>
@@ -251,24 +262,6 @@ function Navbar() {
             Hola, {user?.firstName}
           </div>
         )}
-        <Link to="/carrito" className="navbar-cart" aria-label="Ver carrito">
-          <FontAwesomeIcon icon={faCartShopping} />
-
-          <span className="cart-count">{cartCount}</span>
-        </Link>
-
-        {/* Solo visible con la sesión de admin de prueba */}
-        {isAdmin && (
-          <Link to="/admin" className="navbar-login">
-            <FontAwesomeIcon icon={faUserShield} />
-            <span>Admin</span>
-          </Link>
-        )}
-
-        <Link to="/login" className="navbar-login">
-          <FontAwesomeIcon icon={faUser} />
-          <span>Iniciar sesión</span>
-        </Link>
       </div>
     </nav>
   );

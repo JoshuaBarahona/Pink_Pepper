@@ -1,9 +1,3 @@
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
 import { createContext, useContext, useEffect, useState } from "react";
 
 import {
@@ -30,19 +24,32 @@ export function AuthProvider({ children }) {
 
   // Registrar un usuario
   async function register(userData) {
-  const registeredUser = await registerUser(userData);
-  setUser(registeredUser);
-  setWelcomeTrigger((current) => current + 1);
-  return registeredUser;
-}
+    logoutTestAdmin();
 
-  // Iniciar sesión
+    const registeredUser = await registerUser(userData);
+    setUser(registeredUser);
+    setWelcomeTrigger((current) => current + 1);
+    return registeredUser;
+  }
+
+  // Iniciar sesión (soporta tanto admin de prueba como usuarios registrados)
   async function login(email, password) {
-  const loggedUser = await loginUser(email, password);
-  setUser(loggedUser);
-  setWelcomeTrigger((current) => current + 1);
-  return loggedUser;
-}
+    const adminUser = loginTestAdmin(email, password);
+
+    if (adminUser) {
+      logoutUser();
+      setUser(adminUser);
+      setWelcomeTrigger((current) => current + 1);
+      return adminUser;
+    }
+
+    logoutTestAdmin();
+
+    const loggedUser = await loginUser(email, password);
+    setUser(loggedUser);
+    setWelcomeTrigger((current) => current + 1);
+    return loggedUser;
+  }
 
   // Cargar la sesión existente
   useEffect(() => {
@@ -71,6 +78,7 @@ export function AuthProvider({ children }) {
     const loggedUser = await loginMockUser();
 
     setUser(loggedUser);
+    setWelcomeTrigger((current) => current + 1);
 
     return loggedUser;
   }
@@ -86,12 +94,18 @@ export function AuthProvider({ children }) {
     logoutUser();
 
     setUser(adminUser);
+    setWelcomeTrigger((current) => current + 1);
 
     return adminUser;
   }
 
   // Actualizar datos del perfil
   function updateUser(updatedUser) {
+    if (updatedUser?.id === "test-admin") {
+      setUser(updatedUser);
+      return;
+    }
+
     const savedUser = saveUser(updatedUser);
 
     setUser(savedUser);
@@ -100,7 +114,6 @@ export function AuthProvider({ children }) {
   // Cerrar sesión
   function logout() {
     logoutUser();
-
     logoutTestAdmin();
     setUser(null);
   }

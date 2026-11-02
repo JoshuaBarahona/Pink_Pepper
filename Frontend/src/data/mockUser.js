@@ -1,5 +1,6 @@
 export const mockUser = {
   id: 1,
+  role: "cliente",
 
   firstName: "Joshua",
   middleName: "",
@@ -7,7 +8,7 @@ export const mockUser = {
   secondLastName: "",
 
   email: "joshua@email.com",
-  phone: " ",
+  phone: "8888-8888",
 
   addresses: [
     {

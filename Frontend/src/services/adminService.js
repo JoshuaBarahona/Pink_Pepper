@@ -23,7 +23,9 @@ function createTestAdminUser() {
     id: "test-admin",
     role: "admin",
     firstName: "Admin",
+    middleName: "",
     lastName: "Pink Pepper",
+    secondLastName: "",
     email: TEST_ADMIN_EMAIL,
     phone: "8888 0000",
     addresses: [],
@@ -56,7 +58,7 @@ export function getAdminSession() {
     return localStorage.getItem(ADMIN_SESSION_KEY) === "true"
       ? createTestAdminUser()
       : null;
-  } catch (error) {
+  } catch {
     return null;
   }
 }

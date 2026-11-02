@@ -1,4 +1,3 @@
-
 import { mockUser } from "../data/mockUser";
 
 const SESSION_KEY = "pinkpepper_session";
@@ -57,6 +56,23 @@ async function verifyPassword(password, saltHex, expectedHash) {
   return actualHash === expectedHash;
 }
 
+function sanitizeUser(user) {
+  if (!user) return null;
+
+  const {
+    passwordHash: _passwordHash,
+    passwordSalt: _passwordSalt,
+    ...safeUser
+  } = user;
+
+  return {
+    role: "cliente",
+    addresses: [],
+    paymentMethods: [],
+    ...safeUser,
+  };
+}
+
 // Obtener usuarios de prueba
 export function getUsers() {
   try {
@@ -84,10 +100,9 @@ export async function getCurrentUser() {
   }
 
   const users = getUsers();
+  const foundUser = users.find((user) => String(user.id) === sessionId) ?? null;
 
-  return (
-    users.find((user) => String(user.id) === sessionId) ?? null
-  );
+  return sanitizeUser(foundUser);
 }
 
 // Crear o recuperar el usuario de prueba
@@ -117,11 +132,10 @@ export async function loginMockUser() {
 
   localStorage.setItem(SESSION_KEY, String(user.id));
 
-  return user;
+  return sanitizeUser(user);
 }
 
 // Actualizar información del usuario
-
 export function saveUser(updatedUser) {
   const users = getUsers();
 
@@ -141,30 +155,30 @@ export function saveUser(updatedUser) {
     throw new Error("Este correo ya está registrado en otra cuenta.");
   }
 
-  const userExists = users.some(
+  const existingUser = users.find(
     (user) => String(user.id) === String(updatedUser.id)
   );
 
-  if (!userExists) {
+  if (!existingUser) {
     throw new Error("No se encontró el usuario que deseas actualizar.");
   }
 
+  // Preserva credenciales (passwordHash / passwordSalt) y rol almacenados
   const userToSave = {
+    ...existingUser,
     ...updatedUser,
+    role: updatedUser.role || existingUser.role || "cliente",
     email,
   };
 
   const updatedUsers = users.map((user) =>
-    String(user.id) === String(userToSave.id)
-      ? userToSave
-      : user
+    String(user.id) === String(userToSave.id) ? userToSave : user
   );
 
   saveUsers(updatedUsers);
 
-  return userToSave;
+  return sanitizeUser(userToSave);
 }
-
 
 // Cerrar sesión
 export function logoutUser() {
@@ -197,6 +211,7 @@ export async function registerUser(userData) {
 
   const newUser = {
     id: crypto.randomUUID(),
+    role: userData.role || "cliente",
     firstName: (userData.firstName || "").trim().replace(/\s+/g, " "),
     middleName: (userData.middleName || "").trim().replace(/\s+/g, " "),
     lastName: (userData.lastName || "").trim().replace(/\s+/g, " "),
@@ -212,7 +227,7 @@ export async function registerUser(userData) {
 
   localStorage.setItem(SESSION_KEY, String(newUser.id));
 
-  return newUser;
+  return sanitizeUser(newUser);
 }
 
 // Iniciar sesión de prueba mediante correo
@@ -247,7 +262,5 @@ export async function loginUser(email, password) {
 
   localStorage.setItem(SESSION_KEY, String(foundUser.id));
 
-  const { passwordHash, passwordSalt, ...safeUser } = foundUser;
-
-  return safeUser;
+  return sanitizeUser(foundUser);
 }

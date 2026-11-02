@@ -1,8 +1,8 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import PaymentCardForm from "../../components/PaymentCardForm/PaymentCardForm";
+import "../Profile/Profile.css";
 import "./PaymentMethods.css";
 
 function PaymentMethods() {
@@ -92,11 +92,10 @@ function PaymentMethods() {
           <h1>Métodos de pago</h1>
           <p>Administra las tarjetas asociadas a tu cuenta.</p>
         </header>
-        
-{/*<div className="payment-page-back">
+
+        {/*<div className="payment-page-back">
           <Link to="/perfil">← Volver a mi perfil</Link>
         </div> */}
-        
 
         <section className="profile-section">
           <div className="profile-section-header">
@@ -139,16 +138,12 @@ function PaymentMethods() {
                 <article className="payment-card" key={payment.id}>
                   <div className="payment-card-header">
                     <div>
-                      <span className="payment-brand">
-                        {payment.brand}
-                      </span>
+                      <span className="payment-brand">{payment.brand}</span>
                       <h3>•••• {payment.last4}</h3>
                     </div>
 
                     {payment.isDefault && (
-                      <span className="default-address">
-                        Principal
-                      </span>
+                      <span className="default-address">Principal</span>
                     )}
                   </div>
 
