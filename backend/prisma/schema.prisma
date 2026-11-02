@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -8,19 +9,19 @@ datasource db {
 
 model Pedido {
   id_pedido                             Int              @id @default(autoincrement())
-  id_cliente                            Int?
-  id_repartidor                         Int?
-  fecha_creacion                        DateTime?        @db.Timestamptz(6)
-  fecha_entrega                         DateTime?        @db.Timestamptz(6)
-  direccion                             String?
-  referencia                            String?
-  notas_cliente                         String?
-  metodo_pago                           String?          @db.VarChar
-  comprobante                           String?          @db.VarChar
-  costo_envio                           Decimal?         @db.Money
-  total                                 Decimal?         @db.Money
-  estado_pedido                         String?          @db.VarChar(20)
-  motivo_cancelacion                    String?
+  id_cliente                            Int
+  id_repartidor                         Int
+  fecha_creacion                        DateTime         @default(now()) @db.Timestamptz(6)
+  fecha_entrega                         DateTime         @db.Timestamptz(6)
+  direccion                             String
+  referencia                            String
+  notas_cliente                         String
+  metodo_pago                           String           @db.VarChar
+  comprobante                           String           @db.VarChar
+  costo_envio                           Decimal          @db.Money
+  total                                 Decimal          @db.Money
+  estado_pedido                         EstadoPedido     @default(RECIBIDO)
+  motivo_cancelacion                    String
   Usuario_Pedido_id_clienteToUsuario    Usuario?         @relation("Pedido_id_clienteToUsuario", fields: [id_cliente], references: [id_usuario], onDelete: NoAction, onUpdate: NoAction, map: "fk_pedido_cliente")
   Usuario_Pedido_id_repartidorToUsuario Usuario?         @relation("Pedido_id_repartidorToUsuario", fields: [id_repartidor], references: [id_usuario], onDelete: NoAction, onUpdate: NoAction, map: "fk_pedido_repartidor")
   detalle_pedido                        detalle_pedido[]
@@ -28,16 +29,16 @@ model Pedido {
 
 model Usuario {
   id_usuario                           Int       @id @default(autoincrement())
-  id_rol                               Int?
-  primer_nombre                        String?   @db.VarChar(20)
-  segundo_nombre                       String?   @db.VarChar(20)
-  primer_apellido                      String?   @db.VarChar(20)
-  segundo_apellido                     String?   @db.VarChar(20)
-  correo                               String?   @db.VarChar(50)
-  password                             String?   @db.VarChar(150)
-  telefono                             String?   @db.VarChar(20)
-  estado                               Boolean?
-  fecha_registro                       DateTime? @db.Timestamptz(6)
+  id_rol                               Int
+  primer_nombre                        String    @db.VarChar(20)
+  segundo_nombre                       String    @db.VarChar(20)
+  primer_apellido                      String    @db.VarChar(20)
+  segundo_apellido                     String    @db.VarChar(20)
+  correo                               String    @db.VarChar(50)
+  password                             String    @db.VarChar(150)
+  telefono                             String    @db.VarChar(20)
+  estado                               Boolean
+  fecha_registro                       DateTime  @db.Timestamptz(6)
   Pedido_Pedido_id_clienteToUsuario    Pedido[]  @relation("Pedido_id_clienteToUsuario")
   Pedido_Pedido_id_repartidorToUsuario Pedido[]  @relation("Pedido_id_repartidorToUsuario")
   rol_                                 rol_?     @relation(fields: [id_rol], references: [id_rol], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_rol")
@@ -45,38 +46,60 @@ model Usuario {
 
 model categoria {
   id_categoria     Int        @id @default(autoincrement())
-  nombre_categoria String?    @db.VarChar(60)
+  nombre_categoria Categoria
   producto         producto[]
 }
 
 model detalle_pedido {
-  id_detalle      Int       @id @default(autoincrement())
-  id_pedido       Int?
-  id_producto     Int?
-  cantidad        Int?
-  precio_unitario Decimal?  @db.Money
-  subtotal        Decimal?  @db.Money
-  Pedido          Pedido?   @relation(fields: [id_pedido], references: [id_pedido], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_pedido")
-  producto        producto? @relation(fields: [id_producto], references: [id_producto], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_producto")
+  id_detalle      Int      @id @default(autoincrement())
+  id_pedido       Int
+  id_producto     Int
+  cantidad        Int
+  precio_unitario Decimal  @db.Money
+  subtotal        Decimal  @db.Money
+  Pedido          Pedido   @relation(fields: [id_pedido], references: [id_pedido], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_pedido")
+  producto        producto @relation(fields: [id_producto], references: [id_producto], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_producto")
 }
 
 model producto {
   id_producto    Int              @id @default(autoincrement())
-  id_categoria   Int?
-  nombre         String?          @db.VarChar(50)
-  descripcion    String?          @db.VarChar(50)
-  imagen_url     String?          @db.VarChar(255)
-  precio         Decimal?         @db.Money
-  estado         Boolean?
-  fecha_registro DateTime?        @db.Timestamptz(6)
+  id_categoria   Int
+  nombre         String           @db.VarChar(50)
+  descripcion    String           @db.VarChar(50)
+  imagen_url     String           @db.VarChar(255)
+  precio         Decimal          @db.Money
+  estado         Boolean
+  fecha_registro DateTime         @db.Timestamptz(6)
   detalle_pedido detalle_pedido[]
-  categoria      categoria?       @relation(fields: [id_categoria], references: [id_categoria], onDelete: NoAction, onUpdate: NoAction, map: "fk_categoria")
+  categoria      categoria        @relation(fields: [id_categoria], references: [id_categoria], onDelete: NoAction, onUpdate: NoAction, map: "fk_categoria")
 }
 
 model rol_ {
   id_rol     Int       @id @default(autoincrement())
-  nombre_rol String?   @db.VarChar(50)
+  nombre_rol Rol
   Usuario    Usuario[]
 
   @@map("rol ")
+}
+
+enum Rol {
+  GERENTE
+  ADMIN
+  CLIENTE
+  REPARTIDOR
+  COCINA
+}
+
+enum Categoria {
+  HAMBURGUESAS
+  POLLO
+  BEBIDAS
+}
+
+enum EstadoPedido {
+  RECIBIDO
+  EN_PREPARACION
+  LISTO_PARA_REPARTIDOR
+  EN_CAMINO
+  ENTREGADO
 }
