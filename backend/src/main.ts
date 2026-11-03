@@ -11,7 +11,11 @@ async function bootstrap() {
   console.log('Directorio actual:', process.cwd());
   console.log('Carpeta de imágenes:', join(process.cwd(), 'uploads'));
 
-  app.enableCors();
+  app.enableCors({
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+  });
   app.useStaticAssets(join(process.cwd(), 'uploads'), {
     prefix: '/uploads/',
   });
