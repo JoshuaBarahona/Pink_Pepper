@@ -9,7 +9,7 @@
    o borrar este archivo.
 --------------------------------------------------------- */
 
-export const TEST_ADMIN_ENABLED = true;
+export const TEST_ADMIN_ENABLED = false;
 
 const TEST_ADMIN_EMAIL = "admin@pinkpepper.com";
 const TEST_ADMIN_PASSWORD = "pink123";

@@ -42,6 +42,8 @@ model Usuario {
   Pedido_Pedido_id_clienteToUsuario    Pedido[]  @relation("Pedido_id_clienteToUsuario")
   Pedido_Pedido_id_repartidorToUsuario Pedido[]  @relation("Pedido_id_repartidorToUsuario")
   rol_                                 rol_?     @relation(fields: [id_rol], references: [id_rol], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_rol")
+  direcciones direccion_usuario[]
+  metodos_pago metodo_pago_usuario[]
 }
 
 model categoria {
@@ -102,4 +104,31 @@ enum EstadoPedido {
   LISTO_PARA_REPARTIDOR
   EN_CAMINO
   ENTREGADO
+}
+
+model direccion_usuario {
+  id_direccion     Int      @id @default(autoincrement())
+  id_usuario       Int
+  nombre_direccion String   @db.VarChar(30)
+  direccion        String   @db.VarChar(255)
+  referencia       String?  @db.VarChar(255)
+  es_principal     Boolean  @default(false)
+  fecha_registro   DateTime @default(now()) @db.Timestamptz(6)
+
+  usuario Usuario @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade)
+}
+
+model metodo_pago_usuario {
+  id_metodo_pago Int      @id @default(autoincrement())
+  id_usuario     Int
+  tipo           String   @db.VarChar(20)
+  titular        String?  @db.VarChar(100)
+  marca          String?  @db.VarChar(30)
+  ultimos_digitos String? @db.VarChar(4)
+  mes_expiracion Int?
+  anio_expiracion Int?
+  es_principal   Boolean  @default(false)
+  fecha_registro DateTime @default(now()) @db.Timestamptz(6)
+
+  usuario Usuario @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade)
 }

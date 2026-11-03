@@ -3,10 +3,20 @@ import { useAuth } from "../../context/AuthContext";
 import "./Profile.css";
 
 function Profile() {
-  const { user, loadingUser, updateUser } = useAuth();
+ const {
+  user,
+  loadingUser,
+  updateProfile,
+  addAddress,
+  editAddress,
+  removeAddress,
+  makeDefaultAddress,
+} = useAuth();
 
   const [isEditing, setIsEditing] = useState(false);
   const [profileError, setProfileError] = useState("");
+
+  const [addressError, setAddressError] = useState("");
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -62,7 +72,7 @@ function Profile() {
     return value.trim().replace(/\s+/g, " ");
   }
 
-  function handleSave(e) {
+  async function handleSave(e) {
     e.preventDefault();
     setProfileError("");
 
@@ -99,25 +109,25 @@ function Profile() {
       return;
     }
 
-    const updatedUser = {
-      ...user,
-      firstName,
-      middleName,
-      lastName,
-      secondLastName,
-      email,
-      phone,
-    };
-
     try {
-      updateUser(updatedUser);
-      setIsEditing(false);
-    } catch (error) {
-      setProfileError(
-        error.message || "No se pudieron guardar los cambios."
-      );
-    }
-  }
+  await updateProfile({
+    firstName,
+    middleName,
+    lastName,
+    secondLastName,
+    email,
+    phone,
+  });
+
+  setIsEditing(false);
+} catch (error) {
+  setProfileError(
+    error.response?.data?.message ||
+      error.message ||
+      "No se pudieron guardar los cambios."
+  );
+}
+}
 
   function handleAddressChange(e) {
     const { name, value } = e.target;
@@ -163,71 +173,54 @@ function Profile() {
     });
   }
 
-  function handleSaveAddress(e) {
-    e.preventDefault();
+  async function handleSaveAddress(e) {
+  e.preventDefault();
+  setAddressError("");
 
-    let updatedAddresses;
-
+  try {
     if (editingAddressId !== null) {
-      updatedAddresses = addresses.map((address) =>
-        address.id === editingAddressId
-          ? {
-              ...address,
-              ...addressForm,
-            }
-          : address
-      );
+      await editAddress(editingAddressId, addressForm);
     } else {
-      const newAddress = {
-        id: Date.now(),
-        ...addressForm,
-        isDefault: addresses.length === 0,
-      };
-
-      updatedAddresses = [...addresses, newAddress];
+      await addAddress(addressForm);
     }
-
-    updateUser({
-      ...user,
-      addresses: updatedAddresses,
-    });
 
     handleCancelAddress();
-  }
-
-  function handleDeleteAddress(addressId) {
-    const addressToDelete = addresses.find(
-      (address) => address.id === addressId
+  } catch (error) {
+    setAddressError(
+      error.response?.data?.message ||
+        error.message ||
+        "No se pudo guardar la dirección."
     );
+  }
+}
 
-    let updatedAddresses = addresses.filter(
-      (address) => address.id !== addressId
+  async function handleDeleteAddress(addressId) {
+  setAddressError("");
+
+  try {
+    await removeAddress(addressId);
+  } catch (error) {
+    setAddressError(
+      error.response?.data?.message ||
+        error.message ||
+        "No se pudo eliminar la dirección."
     );
-
-    if (addressToDelete?.isDefault && updatedAddresses.length > 0) {
-      updatedAddresses = updatedAddresses.map((address, index) => ({
-        ...address,
-        isDefault: index === 0,
-      }));
-    }
-
-    updateUser({
-      ...user,
-      addresses: updatedAddresses,
-    });
   }
+}
 
-  function handleSetDefaultAddress(addressId) {
-    const updatedAddresses = addresses.map((address) => ({
-      ...address,
-      isDefault: address.id === addressId,
-    }));
+  async function handleSetDefaultAddress(addressId) {
+  setAddressError("");
 
-    updateUser({
-      ...user,
-      addresses: updatedAddresses,
-    });
+  try {
+    await makeDefaultAddress(addressId);
+  } catch (error) {
+    setAddressError(
+      error.response?.data?.message ||
+        error.message ||
+        "No se pudo establecer la dirección principal."
+    );
   }
+}
 
   if (loadingUser) {
     return (
@@ -482,6 +475,12 @@ function Profile() {
             </form>
           )}
 
+          {addressError && (
+  <p className="profile-error" role="alert">
+    {addressError}
+  </p>
+)}
+
           <div className="addresses-list">
             {addresses.map((address) => (
               <article className="address-card" key={address.id}>
@@ -521,7 +520,7 @@ function Profile() {
 
                   <button
                     type="button"
-                    className="delete-address"
+                    className="delete-button"
                     onClick={() => handleDeleteAddress(address.id)}
                   >
                     Eliminar

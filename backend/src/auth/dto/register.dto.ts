@@ -28,7 +28,7 @@ export class RegisterDto {
   @MaxLength(20, {
     message: 'El primer nombre no puede superar los 20 caracteres.',
   })
-  primer_nombre: string;
+  primer_nombre!: string;
 
   @ApiPropertyOptional({
     description: 'Segundo nombre del usuario (opcional, máximo 20 caracteres)',
@@ -54,7 +54,7 @@ export class RegisterDto {
   @MaxLength(20, {
     message: 'El primer apellido no puede superar los 20 caracteres.',
   })
-  primer_apellido: string;
+  primer_apellido!: string;
 
   @ApiPropertyOptional({
     description:
@@ -80,7 +80,7 @@ export class RegisterDto {
   @MaxLength(50, {
     message: 'El correo electrónico no puede superar los 50 caracteres.',
   })
-  correo: string;
+  correo!: string;
 
   @ApiProperty({
     description:
@@ -100,7 +100,7 @@ export class RegisterDto {
     message:
       'La contraseña debe incluir al menos un carácter especial, como @, # o !.',
   })
-  password: string;
+  password!: string;
 
   @ApiPropertyOptional({
     description:

@@ -166,43 +166,10 @@
   cursor: pointer;
 }
 
-.address-actions .delete-address {
+.address-actions .delete-button {
   background-color: transparent;
   color: #D94F70;
-
   border: 1px solid #D94F70;
-}
-
-@media (max-width: 750px) {
-  .personal-info,
-  .addresses-list,
-  .payment-methods-list,
-  .profile-form-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .profile-section-header {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .profile-form-grid {
-  grid-template-columns: 1fr;
-}
-
-.profile-form-actions {
-  flex-direction: column-reverse;
-}
-
-.profile-cancel-button,
-.profile-save-button {
-  width: 100%;
-}
-
-.address-reference-field{
-    grid-column: auto;
-}
-
 }
 
 .profile-edit-form {
@@ -447,8 +414,12 @@
   border-radius: 15px;
 }
 
-.empty-payment-methods p {
+.empty-payment-methods {
+  padding: 30px;
   margin: 0;
+  text-align: center;
+  border: 1px dashed rgba(62, 39, 35, 0.25);
+  border-radius: 15px;
   opacity: 0.65;
 }
 
@@ -529,4 +500,109 @@
   font-size: 0.9rem;
   font-weight: 600;
   line-height: 1.5;
+}
+
+/* Formulario de métodos de pago */
+.payment-form {
+  padding: 25px 20px;
+  background-color: #F5F0E6;
+  border-radius: 15px;
+}
+
+.payment-form > h3 {
+  margin-bottom: 20px;
+}
+
+/* Opción para establecer tarjeta principal */
+.payment-default-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+
+  color: #3E2723;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.payment-default-option input {
+  accent-color: #D94F70;
+  cursor: pointer;
+}
+
+/* Información de seguridad */
+.payment-form-note {
+  margin-top: 15px;
+  color: #7A625C;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+/* Información de las tarjetas */
+.payment-card-number {
+  margin: 10px 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.payment-card-holder,
+.payment-card-expiration {
+  margin: 5px 0;
+  color: #7A625C;
+  font-size: 0.85rem;
+}
+
+/* Adaptación de las tarjetas */
+.payment-actions {
+  flex-wrap: wrap;
+}
+
+@media (max-width: 750px) {
+  .profile-page {
+    padding: 40px 5%;
+  }
+
+  .profile-section {
+    padding: 20px;
+  }
+
+  .personal-info,
+  .addresses-list,
+  .payment-methods-list,
+  .profile-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-section-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .profile-form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .profile-cancel-button,
+  .profile-save-button {
+    width: 100%;
+  }
+
+  .address-reference-field {
+    grid-column: auto;
+  }
+
+  .payment-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .payment-actions button {
+    width: 100%;
+  }
+}
+
+.payment-form .profile-field select:focus {
+  border-color: #D94F70;
+  outline: none;
 }

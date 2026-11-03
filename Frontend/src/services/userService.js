@@ -1,7 +1,23 @@
+import api, { TOKEN_KEY } from "./api";
 import { mockUser } from "../data/mockUser";
 
 const SESSION_KEY = "pinkpepper_session";
 const USERS_KEY = "pinkpepper_users";
+
+function mapBackendUser(usuario) {
+  return {
+    id: usuario.id_usuario,
+    firstName: usuario.primer_nombre,
+    middleName: usuario.segundo_nombre || "",
+    lastName: usuario.primer_apellido,
+    secondLastName: usuario.segundo_apellido || "",
+    email: usuario.correo,
+    phone: usuario.telefono || "",
+    role: usuario.rol.toLowerCase(),
+    addresses: [],
+    paymentMethods: [],
+  };
+}
 
 function bytesToHex(bytes) {
   return Array.from(bytes)
@@ -56,23 +72,6 @@ async function verifyPassword(password, saltHex, expectedHash) {
   return actualHash === expectedHash;
 }
 
-function sanitizeUser(user) {
-  if (!user) return null;
-
-  const {
-    passwordHash: _passwordHash,
-    passwordSalt: _passwordSalt,
-    ...safeUser
-  } = user;
-
-  return {
-    role: "cliente",
-    addresses: [],
-    paymentMethods: [],
-    ...safeUser,
-  };
-}
-
 // Obtener usuarios de prueba
 export function getUsers() {
   try {
@@ -93,6 +92,15 @@ export function saveUsers(users) {
 
 // Obtener el usuario de la sesión actual
 export async function getCurrentUser() {
+  const token = localStorage.getItem(TOKEN_KEY);
+
+  // Si existe un JWT, consultamos el perfil real del backend.
+  if (token) {
+    const response = await api.get("/auth/profile");
+    return mapBackendUser(response.data);
+  }
+
+  // Si no hay JWT, mantenemos el usuario de prueba.
   const sessionId = localStorage.getItem(SESSION_KEY);
 
   if (!sessionId) {
@@ -100,9 +108,8 @@ export async function getCurrentUser() {
   }
 
   const users = getUsers();
-  const foundUser = users.find((user) => String(user.id) === sessionId) ?? null;
 
-  return sanitizeUser(foundUser);
+  return users.find((user) => String(user.id) === sessionId) ?? null;
 }
 
 // Crear o recuperar el usuario de prueba
@@ -132,10 +139,11 @@ export async function loginMockUser() {
 
   localStorage.setItem(SESSION_KEY, String(user.id));
 
-  return sanitizeUser(user);
+  return user;
 }
 
 // Actualizar información del usuario
+
 export function saveUser(updatedUser) {
   const users = getUsers();
 
@@ -155,112 +163,195 @@ export function saveUser(updatedUser) {
     throw new Error("Este correo ya está registrado en otra cuenta.");
   }
 
-  const existingUser = users.find(
+  const userExists = users.some(
     (user) => String(user.id) === String(updatedUser.id)
   );
 
-  if (!existingUser) {
+  if (!userExists) {
     throw new Error("No se encontró el usuario que deseas actualizar.");
   }
 
-  // Preserva credenciales (passwordHash / passwordSalt) y rol almacenados
   const userToSave = {
-    ...existingUser,
     ...updatedUser,
-    role: updatedUser.role || existingUser.role || "cliente",
     email,
   };
 
   const updatedUsers = users.map((user) =>
-    String(user.id) === String(userToSave.id) ? userToSave : user
+    String(user.id) === String(userToSave.id)
+      ? userToSave
+      : user
   );
 
   saveUsers(updatedUsers);
 
-  return sanitizeUser(userToSave);
+  return userToSave;
 }
+
+// Actualizar perfil de un usuario autenticado en el backend
+export async function updateProfileUser(updatedUser) {
+  const response = await api.patch("/auth/profile", {
+    primer_nombre: updatedUser.firstName,
+    segundo_nombre: updatedUser.middleName,
+    primer_apellido: updatedUser.lastName,
+    segundo_apellido: updatedUser.secondLastName,
+    correo: updatedUser.email.trim().toLowerCase(),
+    telefono: updatedUser.phone,
+  });
+
+  return mapBackendUser(response.data);
+}
+
 
 // Cerrar sesión
 export function logoutUser() {
   localStorage.removeItem(SESSION_KEY);
+  localStorage.removeItem(TOKEN_KEY);
 }
 
 // Registrar un usuario nuevo
 export async function registerUser(userData) {
-  const users = getUsers();
+  const response = await api.post("/auth/register", {
+    primer_nombre: userData.firstName,
+    segundo_nombre: userData.middleName || "",
+    primer_apellido: userData.lastName,
+    segundo_apellido: userData.secondLastName || "",
+    correo: userData.email.trim().toLowerCase(),
+    password: userData.password,
+  });
 
-  const email = (userData.email || "").trim().toLowerCase();
+  // Guardamos el token que devuelve el backend.
+  localStorage.setItem(TOKEN_KEY, response.data.access_token);
 
-  if (!email) {
-    throw new Error("Debes ingresar un correo electrónico.");
-  }
-
-  const existingUser = users.find(
-    (user) => (user.email || "").trim().toLowerCase() === email
-  );
-
-  if (existingUser) {
-    throw new Error("Este correo ya está registrado.");
-  }
-
-  if (!userData.password) {
-    throw new Error("Debes ingresar una contraseña.");
-  }
-
-  const credentials = await createPasswordCredentials(userData.password);
-
-  const newUser = {
-    id: crypto.randomUUID(),
-    role: userData.role || "cliente",
-    firstName: (userData.firstName || "").trim().replace(/\s+/g, " "),
-    middleName: (userData.middleName || "").trim().replace(/\s+/g, " "),
-    lastName: (userData.lastName || "").trim().replace(/\s+/g, " "),
-    secondLastName: (userData.secondLastName || "").trim().replace(/\s+/g, " "),
-    email,
-    ...credentials,
-    phone: "",
-    addresses: [],
-    paymentMethods: [],
-  };
-
-  saveUsers([...users, newUser]);
-
-  localStorage.setItem(SESSION_KEY, String(newUser.id));
-
-  return sanitizeUser(newUser);
+  return mapBackendUser(response.data.usuario);
 }
 
 // Iniciar sesión de prueba mediante correo
 export async function loginUser(email, password) {
-  const users = getUsers();
+  const response = await api.post("/auth/login", {
+    correo: email.trim().toLowerCase(),
+    password,
+  });
 
-  const normalizedEmail = (email || "").trim().toLowerCase();
+  localStorage.setItem(TOKEN_KEY, response.data.access_token);
 
-  const foundUser = users.find(
-    (user) => (user.email || "").trim().toLowerCase() === normalizedEmail
+  return mapBackendUser(response.data.usuario);
+}
+
+// Convertir una dirección del backend al formato del frontend
+function mapBackendAddress(address) {
+  return {
+    id: address.id_direccion,
+    label: address.nombre_direccion,
+    address: address.direccion,
+    reference: address.referencia || "",
+    isDefault: address.es_principal,
+  };
+}
+
+// Consultar las direcciones del usuario autenticado
+export async function getAddresses() {
+  const response = await api.get("/addresses");
+
+  return response.data.map(mapBackendAddress);
+}
+
+// Registrar una dirección
+export async function createAddress(addressData) {
+  const response = await api.post("/addresses", {
+    nombre_direccion: addressData.label,
+    direccion: addressData.address,
+    referencia: addressData.reference || "",
+    es_principal: addressData.isDefault,
+  });
+
+  return mapBackendAddress(response.data);
+}
+
+// Actualizar una dirección
+export async function updateAddress(addressId, addressData) {
+  const response = await api.patch(`/addresses/${addressId}`, {
+    nombre_direccion: addressData.label,
+    direccion: addressData.address,
+    referencia: addressData.reference || "",
+  });
+
+  return mapBackendAddress(response.data);
+}
+
+// Eliminar una dirección
+export async function deleteAddress(addressId) {
+  const response = await api.delete(`/addresses/${addressId}`);
+
+  return response.data;
+}
+
+// Establecer una dirección como principal
+export async function setDefaultAddress(addressId) {
+  const response = await api.patch(`/addresses/${addressId}/default`);
+
+  return mapBackendAddress(response.data);
+}
+
+// Convertir un método de pago del backend al formato del frontend
+function mapBackendPaymentMethod(paymentMethod) {
+  return {
+    id: paymentMethod.id_metodo_pago,
+    type: paymentMethod.tipo,
+    holder: paymentMethod.titular || "",
+    brand: paymentMethod.marca || "",
+    lastFour: paymentMethod.ultimos_digitos || "",
+    expirationMonth: paymentMethod.mes_expiracion,
+    expirationYear: paymentMethod.anio_expiracion,
+    isDefault: paymentMethod.es_principal,
+  };
+}
+
+// Consultar las tarjetas del usuario autenticado
+export async function getPaymentMethods() {
+  const response = await api.get("/payment-methods");
+
+  return response.data.map(mapBackendPaymentMethod);
+}
+
+// Registrar una tarjeta
+export async function createPaymentMethod(paymentData) {
+  const response = await api.post("/payment-methods", {
+    titular: paymentData.holder,
+    marca: paymentData.brand,
+    ultimos_digitos: paymentData.lastFour,
+    mes_expiracion: Number(paymentData.expirationMonth),
+    anio_expiracion: Number(paymentData.expirationYear),
+    es_principal: paymentData.isDefault,
+  });
+
+  return mapBackendPaymentMethod(response.data);
+}
+
+// Actualizar una tarjeta
+export async function updatePaymentMethod(paymentMethodId, paymentData) {
+  const response = await api.patch(`/payment-methods/${paymentMethodId}`, {
+    titular: paymentData.holder,
+    marca: paymentData.brand,
+    ultimos_digitos: paymentData.lastFour,
+    mes_expiracion: Number(paymentData.expirationMonth),
+    anio_expiracion: Number(paymentData.expirationYear),
+  });
+
+  return mapBackendPaymentMethod(response.data);
+}
+
+// Eliminar una tarjeta
+export async function deletePaymentMethod(paymentMethodId) {
+  const response = await api.delete(`/payment-methods/${paymentMethodId}`);
+
+  return response.data;
+}
+
+// Establecer una tarjeta como principal
+export async function setDefaultPaymentMethod(paymentMethodId) {
+  const response = await api.patch(
+    `/payment-methods/${paymentMethodId}/default`
   );
 
-  if (!foundUser) {
-    throw new Error("El correo electrónico o la contraseña son incorrectos.");
-  }
-
-  if (!foundUser.passwordSalt || !foundUser.passwordHash) {
-    throw new Error(
-      "Esta cuenta de prueba no tiene una contraseña configurada. Registra una cuenta nueva para continuar."
-    );
-  }
-
-  const isValidPassword = await verifyPassword(
-    password || "",
-    foundUser.passwordSalt,
-    foundUser.passwordHash
-  );
-
-  if (!isValidPassword) {
-    throw new Error("El correo electrónico o la contraseña son incorrectos.");
-  }
-
-  localStorage.setItem(SESSION_KEY, String(foundUser.id));
-
-  return sanitizeUser(foundUser);
+  return mapBackendPaymentMethod(response.data);
 }

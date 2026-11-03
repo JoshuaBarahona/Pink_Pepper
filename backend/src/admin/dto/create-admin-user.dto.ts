@@ -34,7 +34,7 @@ export class CreateAdminUserDto {
   @MaxLength(20, {
     message: 'El primer nombre no puede superar los 20 caracteres.',
   })
-  primer_nombre: string;
+  primer_nombre!: string;
 
   @ApiPropertyOptional({
     description: 'Segundo nombre opcional (máximo 20 caracteres)',
@@ -61,7 +61,7 @@ export class CreateAdminUserDto {
   @MaxLength(20, {
     message: 'El primer apellido no puede superar los 20 caracteres.',
   })
-  primer_apellido: string;
+  primer_apellido!: string;
 
   @ApiPropertyOptional({
     description: 'Segundo apellido opcional (máximo 20 caracteres)',
@@ -86,7 +86,7 @@ export class CreateAdminUserDto {
   @MaxLength(50, {
     message: 'El correo electrónico no puede superar los 50 caracteres.',
   })
-  correo: string;
+  correo!: string;
 
   @ApiProperty({
     description:
@@ -106,7 +106,7 @@ export class CreateAdminUserDto {
     message:
       'La contraseña debe incluir al menos un carácter especial, como @, # o !.',
   })
-  password: string;
+  password!: string;
 
   @ApiPropertyOptional({
     description: 'Teléfono de contacto (máximo 20 caracteres)',
@@ -130,7 +130,7 @@ export class CreateAdminUserDto {
   @IsEnum(Rol, {
     message: 'El rol debe ser GERENTE, ADMIN, CLIENTE, REPARTIDOR o COCINA.',
   })
-  rol: Rol;
+  rol!: Rol;
 
   @ApiPropertyOptional({
     description: 'Estado inicial del usuario (por defecto true)',

@@ -36,7 +36,7 @@ export class CreateProductDto {
   @MaxLength(50, {
     message: 'El nombre del producto no puede superar los 50 caracteres.',
   })
-  nombre: string;
+  nombre!: string;
 
   @ApiPropertyOptional({
     description: 'Descripción corta del platillo (máximo 50 caracteres)',
@@ -74,7 +74,7 @@ export class CreateProductDto {
     { message: 'El precio debe ser un número válido con hasta 2 decimales.' },
   )
   @IsPositive({ message: 'El precio debe ser mayor que cero.' })
-  precio: number;
+  precio!: number;
 
   @ApiPropertyOptional({
     description:

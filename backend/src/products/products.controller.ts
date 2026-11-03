@@ -9,6 +9,9 @@ import {
   Post,
   Query,
   UseGuards,
+  BadRequestException,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -32,6 +35,11 @@ import { ProductsService } from './products.service.js';
 import { CreateProductDto } from './dto/create-product.dto.js';
 import { UpdateProductDto } from './dto/update-product.dto.js';
 import { QueryProductsDto } from './dto/query-products.dto.js';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { mkdirSync } from 'node:fs';
+import { join } from 'node:path';
+import { randomUUID } from 'node:crypto';
 
 @ApiTags('Products')
 @Controller('products')
@@ -58,6 +66,77 @@ export class ProductsController {
   })
   create(@Body() dto: CreateProductDto) {
     return this.productsService.create(dto);
+  }
+
+    @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Rol.GERENTE, Rol.ADMIN)
+  @Post(':id/image')
+  @ApiBearerAuth()
+  @UseInterceptors(
+    FileInterceptor('image', {
+      storage: diskStorage({
+        destination: (req, file, callback) => {
+          const uploadPath = join(
+            process.cwd(),
+            'uploads',
+            'products',
+          );
+
+          mkdirSync(uploadPath, { recursive: true });
+
+          callback(null, uploadPath);
+        },
+        filename: (req, file, callback) => {
+          const extensions: Record<string, string> = {
+            'image/jpeg': '.jpg',
+            'image/png': '.png',
+            'image/webp': '.webp',
+          };
+
+          const extension = extensions[file.mimetype];
+
+          callback(null, `${randomUUID()}${extension}`);
+        },
+      }),
+      limits: {
+        fileSize: 5 * 1024 * 1024,
+      },
+      fileFilter: (req, file, callback) => {
+        const allowedTypes = [
+          'image/jpeg',
+          'image/png',
+          'image/webp',
+        ];
+
+        if (!allowedTypes.includes(file.mimetype)) {
+          return callback(
+            new BadRequestException(
+              'Solo se permiten imágenes JPG, PNG o WebP.',
+            ),
+            false,
+          );
+        }
+
+        callback(null, true);
+      },
+    }),
+  )
+  @ApiOperation({
+    summary: 'Subir o reemplazar la imagen de un producto',
+    description:
+      'Disponible para GERENTE y ADMIN. Acepta imágenes JPG, PNG y WebP de máximo 5 MB.',
+  })
+  uploadImage(
+    @Param('id', ParseIntPipe) id: number,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (!file) {
+      throw new BadRequestException('Debes seleccionar una imagen.');
+    }
+
+    return this.productsService.update(id, {
+      imagen_url: `/uploads/products/${file.filename}`,
+    });
   }
 
   @Public()

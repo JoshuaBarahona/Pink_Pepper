@@ -16,5 +16,5 @@ export class UpdateUserRoleDto {
   @IsEnum(Rol, {
     message: 'El rol debe ser GERENTE, ADMIN, CLIENTE, REPARTIDOR o COCINA.',
   })
-  rol: Rol;
+  rol!: Rol;
 }

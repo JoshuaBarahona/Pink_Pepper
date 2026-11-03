@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faFloppyDisk,
@@ -6,6 +6,13 @@ import {
   faBan,
   faPlus,
 } from "@fortawesome/free-solid-svg-icons";
+
+import {
+  getProductsForManagement,
+  createProduct,
+  updateProduct,
+  uploadProductImage,
+} from "../../services/productService";
 
 import ManagerNav from "../../components/ManagerNav/ManagerNav";
 import "./MenuManager.css";
@@ -28,22 +35,14 @@ const emptyForm = {
   category: "",
   price: "",
   description: "",
+  image: null,
 };
 
-const mockMenu = [
-  { id: 1, name: "Hamburguesa clásica", category: "Hamburguesas", price: 270, available: true },
-  { id: 2, name: "Groovie Burger", category: "Hamburguesas", price: 360, available: true },
-  { id: 3, name: "Hamburguesa doble queso", category: "Hamburguesas", price: 330, available: true },
-  { id: 4, name: "Chicken fingers", category: "Pollo", price: 220, available: true },
-  { id: 5, name: "Alitas BBQ", category: "Pollo", price: 250, available: false },
-  { id: 6, name: "Sándwich de pollo crispy", category: "Pollo", price: 240, available: true },
-  { id: 7, name: "Limonada de fresa", category: "Bebidas", price: 75, available: true },
-  { id: 8, name: "Té helado", category: "Bebidas", price: 65, available: true },
-  { id: 9, name: "Malteada de chocolate", category: "Bebidas", price: 130, available: true },
-];
-
 function MenuManager() {
-  const [items, setItems] = useState(mockMenu);
+const [items, setItems] = useState([]);
+const [loading, setLoading] = useState(true);
+const [errorMessage, setErrorMessage] = useState("");
+const [saving, setSaving] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("Todos");
 
   // Precios que el gerente está escribiendo y aún no guarda: { [id]: "texto" }
@@ -63,17 +62,76 @@ function MenuManager() {
 
   const unavailableCount = items.filter((item) => !item.available).length;
 
-  function handleToggle(itemId) {
-    // Cuando exista backend: guardar la disponibilidad aquí.
-    setItems((currentItems) =>
-      currentItems.map((item) =>
-        item.id === itemId ? { ...item, available: !item.available } : item
+  const [updatingIds, setUpdatingIds] = useState([]);
+
+  const [imagePreview, setImagePreview] = useState("");
+
+useEffect(() => {
+  if (!formData.image) {
+    setImagePreview("");
+    return;
+  }
+
+  const previewUrl = URL.createObjectURL(formData.image);
+  setImagePreview(previewUrl);
+
+  return () => URL.revokeObjectURL(previewUrl);
+}, [formData.image]);
+
+  useEffect(() => {
+  loadProducts();
+}, []);
+
+async function loadProducts() {
+  try {
+    setLoading(true);
+    setErrorMessage("");
+
+    const products = await getProductsForManagement();
+
+    setItems(products);
+  } catch (error) {
+    console.error("Error al cargar productos:", error);
+
+    setErrorMessage(
+      error.response?.data?.message ||
+      "No se pudieron cargar los productos."
+    );
+  } finally {
+    setLoading(false);
+  }
+}
+
+  const handleToggle = async (itemId) => {
+  try {
+    setUpdatingIds((prev) => [...prev, itemId]);
+
+    const item = items.find((product) => product.id === itemId);
+
+    if (!item) return;
+
+    const updatedProduct = await updateProduct(itemId, {
+      estado: !item.available,
+    });
+
+    setItems((prev) =>
+      prev.map((product) =>
+        product.id === itemId
+          ? { ...product, available: updatedProduct.available }
+          : product
       )
     );
 
-    setSavedId(null);
-    setNotice(null);
+    setNotice("Disponibilidad actualizada correctamente.");
+  } catch (error) {
+    setNotice(
+  error.response?.data?.message ||
+  "No se pudo actualizar la disponibilidad."
+);
+  } finally {
+    setUpdatingIds((prev) => prev.filter((id) => id !== itemId));
   }
+};
 
   function handlePriceChange(itemId, value) {
     setPriceDrafts((currentDrafts) => ({
@@ -85,17 +143,28 @@ function MenuManager() {
     setNotice(null);
   }
 
-  function handleSavePrice(item) {
-    const newPrice = Number(priceDrafts[item.id]);
+async function handleSavePrice(item) {
+  const newPrice = Number(priceDrafts[item.id]);
 
-    if (!Number.isFinite(newPrice) || newPrice <= 0) return;
+if (
+  !Number.isFinite(newPrice) ||
+  newPrice <= 0 ||
+  !/^\d+(\.\d{1,2})?$/.test(String(priceDrafts[item.id]))
+) {
+  return;
+}
 
-    // Cuando exista backend: guardar el precio aquí.
+  try {
+    setErrorMessage("");
+    setNotice(null);
+
+    const updatedProduct = await updateProduct(item.id, {
+      precio: newPrice,
+    });
+
     setItems((currentItems) =>
       currentItems.map((currentItem) =>
-        currentItem.id === item.id
-          ? { ...currentItem, price: newPrice }
-          : currentItem
+        currentItem.id === item.id ? updatedProduct : currentItem
       )
     );
 
@@ -106,7 +175,15 @@ function MenuManager() {
     });
 
     setSavedId(item.id);
+  } catch (error) {
+    console.error("Error al actualizar precio:", error);
+
+    setErrorMessage(
+      error.response?.data?.message ||
+      "No se pudo actualizar el precio."
+    );
   }
+}
 
   function handleOpenForm() {
     setFormData(emptyForm);
@@ -119,6 +196,7 @@ function MenuManager() {
     setShowForm(false);
     setFormData(emptyForm);
     setFormErrors({});
+    setNotice(null);
   }
 
   function handleFormChange(e) {
@@ -136,52 +214,132 @@ function MenuManager() {
     }));
   }
 
-  function handleAddProduct(e) {
-    e.preventDefault();
+  function handleImageChange(e) {
+  const file = e.target.files?.[0];
 
-    const name = formData.name.trim();
-    const price = Number(formData.price);
-    const errors = {};
+  if (!file) return;
 
-    if (!name) {
-      errors.name = "Escribe el nombre del platillo.";
-    } else if (
-      items.some((item) => item.name.toLowerCase() === name.toLowerCase())
-    ) {
-      errors.name = "Ya existe un platillo con ese nombre.";
-    }
+  const allowedTypes = [
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+  ];
 
-    if (!formData.category) {
-      errors.category = "Elige una categoría.";
-    }
+  if (!allowedTypes.includes(file.type)) {
+    setFormErrors((currentErrors) => ({
+      ...currentErrors,
+      image: "Selecciona una imagen JPG, PNG o WebP.",
+    }));
+    e.target.value = "";
+    return;
+  }
 
-    if (!formData.price || !Number.isFinite(price) || price <= 0) {
-      errors.price = "Escribe un precio mayor que cero.";
-    }
+  if (file.size > 5 * 1024 * 1024) {
+    setFormErrors((currentErrors) => ({
+      ...currentErrors,
+      image: "La imagen no puede superar los 5 MB.",
+    }));
+    e.target.value = "";
+    return;
+  }
 
-    if (Object.keys(errors).length > 0) {
-      setFormErrors(errors);
-      return;
-    }
+  setFormData((currentData) => ({
+    ...currentData,
+    image: file,
+  }));
 
-    const newItem = {
-      id: Date.now(),
-      name,
-      category: formData.category,
-      price,
-      description: formData.description.trim(),
-      available: true,
-    };
+  setFormErrors((currentErrors) => ({
+    ...currentErrors,
+    image: undefined,
+  }));
+}
 
-    // Cuando exista backend: crear el producto aquí.
+  async function handleAddProduct(e) {
+  e.preventDefault();
+
+  const name = formData.name.trim();
+  const price = Number(formData.price);
+  const description = formData.description.trim();
+  const errors = {};
+
+  if (!name) {
+    errors.name = "Escribe el nombre del platillo.";
+  } else if (name.length > 50) {
+    errors.name = "El nombre no puede superar los 50 caracteres.";
+  } else if (
+    items.some(
+      (item) => item.name.toLowerCase() === name.toLowerCase()
+    )
+  ) {
+    errors.name = "Ya existe un platillo con ese nombre.";
+  }
+
+  if (!formData.category) {
+    errors.category = "Elige una categoría.";
+  }
+
+  if (!formData.price || !Number.isFinite(price) || price <= 0) {
+    errors.price = "Escribe un precio mayor que cero.";
+  }
+
+  if (description.length > 50) {
+    errors.description = "La descripción no puede superar los 50 caracteres.";
+  }
+
+  if (Object.keys(errors).length > 0) {
+    setFormErrors(errors);
+    return;
+  }
+
+  try {
+    setSaving(true);
+    setErrorMessage("");
+    setNotice(null);
+
+    let newItem = await createProduct({
+  name,
+  category: formData.category,
+  price,
+  description,
+});
+
+// Si se seleccionó una imagen, subirla después de crear el producto.
+if (formData.image) {
+  try {
+    newItem = await uploadProductImage(newItem.id, formData.image);
+  } catch (imageError) {
+    console.error("Error al subir la imagen:", imageError);
+
     setItems((currentItems) => [...currentItems, newItem]);
+    setSelectedCategory("Todos");
 
-    // Muestra todo el menú para que el gerente vea el platillo nuevo
+    handleCloseForm();
+
+    setNotice(
+      "El producto se creó, pero no se pudo subir su imagen. Puedes editarlo posteriormente para agregarla."
+    );
+
+    return;
+  }
+}
+
+setItems((currentItems) => [...currentItems, newItem]);
+
     setSelectedCategory("Todos");
     setNotice(`Se agregó ${name} al menú.`);
 
     handleCloseForm();
+  } catch (error) {
+    console.error("Error al crear producto:", error);
+
+    setErrorMessage(
+      error.response?.data?.message ||
+      "No se pudo agregar el producto."
+    );
+  } finally {
+    setSaving(false);
   }
+}
 
   return (
     <main className="menu-manager-page">
@@ -238,6 +396,11 @@ function MenuManager() {
               {notice}
             </p>
           )}
+          {errorMessage && (
+  <p className="menu-manager-error" role="alert">
+    {errorMessage}
+  </p>
+)}
 
           {/* FORMULARIO: NUEVO PLATILLO */}
           {showForm && (
@@ -262,6 +425,7 @@ function MenuManager() {
                     placeholder="Ej. Hamburguesa BBQ"
                     aria-invalid={!!formErrors.name}
                     autoFocus
+                    maxLength={50}
                   />
 
                   {formErrors.name && (
@@ -305,7 +469,7 @@ function MenuManager() {
                     id="new-product-price"
                     name="price"
                     min="1"
-                    step="1"
+                    step="0.01"
                     inputMode="numeric"
                     value={formData.price}
                     onChange={handleFormChange}
@@ -321,18 +485,55 @@ function MenuManager() {
                 </div>
 
                 <div className="menu-manager-field menu-manager-field-wide">
-                  <label htmlFor="new-product-description">
-                    Descripción (opcional)
-                  </label>
+  <label htmlFor="new-product-description">
+    Descripción (opcional)
+  </label>
 
-                  <textarea
-                    id="new-product-description"
-                    name="description"
-                    value={formData.description}
-                    onChange={handleFormChange}
-                    placeholder="Ej. Carne de res, queso cheddar y salsa BBQ."
-                  />
-                </div>
+  <textarea
+    id="new-product-description"
+    name="description"
+    value={formData.description}
+    onChange={handleFormChange}
+    placeholder="Ej. Carne de res, queso cheddar y salsa BBQ."
+    maxLength={50}
+  />
+
+  {formErrors.description && (
+    <small className="menu-manager-field-error">
+      {formErrors.description}
+    </small>
+  )}
+</div>
+
+<div className="menu-manager-field menu-manager-field-wide">
+  <label htmlFor="new-product-image">
+    Imagen del platillo
+  </label>
+
+  <input
+    type="file"
+    id="new-product-image"
+    accept="image/jpeg,image/png,image/webp"
+    onChange={handleImageChange}
+  />
+
+  {formErrors.image && (
+    <small className="menu-manager-field-error">
+      {formErrors.image}
+    </small>
+  )}
+
+  {imagePreview && (
+    <div className="menu-manager-image-preview">
+      <img
+        src={imagePreview}
+        alt="Vista previa del platillo"
+      />
+    </div>
+  )}
+
+  <small>Formatos JPG, PNG o WebP. Máximo 5 MB.</small>
+</div>
 
               </div>
 
@@ -345,10 +546,14 @@ function MenuManager() {
                   Cancelar
                 </button>
 
-                <button type="submit" className="menu-manager-submit-button">
-                  <FontAwesomeIcon icon={faPlus} />
-                  Agregar al menú
-                </button>
+                <button
+  type="submit"
+  className="menu-manager-submit-button"
+  disabled={saving}
+>
+  <FontAwesomeIcon icon={faPlus} />
+  {saving ? "Guardando..." : "Agregar al menú"}
+</button>
               </div>
             </form>
           )}
@@ -375,6 +580,11 @@ function MenuManager() {
           </div>
 
           {/* LISTA */}
+          {loading ? (
+  <p>Cargando productos...</p>
+) : filteredItems.length === 0 ? (
+  <p>No hay productos en esta categoría.</p>
+) : (
           <ul className="menu-manager-list">
             {filteredItems.map((item) => {
               const draft = priceDrafts[item.id];
@@ -428,7 +638,7 @@ function MenuManager() {
                           id={`price-${item.id}`}
                           type="number"
                           min="1"
-                          step="1"
+                          step="0.01"
                           inputMode="numeric"
                           value={inputValue}
                           onChange={(e) =>
@@ -440,7 +650,7 @@ function MenuManager() {
                       <button
                         type="button"
                         className="menu-manager-save-button"
-                        disabled={!isDirty || !isValid}
+                        disabled={!isDirty || !isValid || saving}
                         onClick={() => handleSavePrice(item)}
                       >
                         <FontAwesomeIcon icon={faFloppyDisk} />
@@ -466,6 +676,7 @@ function MenuManager() {
                       item.available ? "on" : ""
                     }`}
                     onClick={() => handleToggle(item.id)}
+                    disabled={updatingIds.includes(item.id)}
                   >
                     <span className="menu-manager-toggle-knob" />
                   </button>
@@ -474,6 +685,7 @@ function MenuManager() {
               );
             })}
           </ul>
+)}
 
         </div>
 

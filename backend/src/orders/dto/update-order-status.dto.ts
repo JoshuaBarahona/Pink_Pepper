@@ -20,5 +20,5 @@ export class UpdateOrderStatusDto {
     message:
       'El estado del pedido debe ser RECIBIDO, EN_PREPARACION, LISTO_PARA_REPARTIDOR, EN_CAMINO o ENTREGADO.',
   })
-  estado_pedido: EstadoPedido;
+  estado_pedido!: EstadoPedido;
 }

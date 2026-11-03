@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -6,62 +7,88 @@ import "../Profile/Profile.css";
 import "./PaymentMethods.css";
 
 function PaymentMethods() {
-  const { user, loadingUser, updateUser } = useAuth();
+  const {
+    user,
+    loadingUser,
+    addPaymentMethod,
+    editPaymentMethod,
+    removePaymentMethod,
+    makeDefaultPaymentMethod,
+  } = useAuth();
+
   const [showPaymentForm, setShowPaymentForm] = useState(false);
+  const [editingPayment, setEditingPayment] = useState(null);
   const [paymentError, setPaymentError] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const paymentMethods = user?.paymentMethods ?? [];
 
-  function handleSavePayment(newPayment) {
+  async function handleSavePayment(paymentData) {
     try {
-      updateUser({
-        ...user,
-        paymentMethods: [
-          ...paymentMethods,
-          {
-            ...newPayment,
-            isDefault: paymentMethods.length === 0,
-          },
-        ],
-      });
+      setIsProcessing(true);
+      setPaymentError("");
+
+      if (editingPayment) {
+        await editPaymentMethod(editingPayment.id, paymentData);
+      } else {
+        await addPaymentMethod(paymentData);
+      }
 
       setShowPaymentForm(false);
-      setPaymentError("");
+      setEditingPayment(null);
     } catch (error) {
-      setPaymentError(error.message || "No se pudo guardar la tarjeta.");
+      setPaymentError(
+        error.response?.data?.message ||
+        error.message ||
+        "No se pudieron guardar los datos de la tarjeta."
+      );
+    } finally {
+      setIsProcessing(false);
     }
   }
 
-  function handleSetDefaultPayment(paymentId) {
-    updateUser({
-      ...user,
-      paymentMethods: paymentMethods.map((payment) => ({
-        ...payment,
-        isDefault: payment.id === paymentId,
-      })),
-    });
+  function handleEditPayment(payment) {
+    setPaymentError("");
+    setEditingPayment(payment);
+    setShowPaymentForm(true);
   }
 
-  function handleDeletePayment(paymentId) {
-    const paymentToDelete = paymentMethods.find(
-      (payment) => payment.id === paymentId
-    );
+  function handleCancelForm() {
+    setShowPaymentForm(false);
+    setEditingPayment(null);
+    setPaymentError("");
+  }
 
-    let updatedPayments = paymentMethods.filter(
-      (payment) => payment.id !== paymentId
-    );
+  async function handleSetDefaultPayment(paymentId) {
+    try {
+      setIsProcessing(true);
+      setPaymentError("");
 
-    if (paymentToDelete?.isDefault && updatedPayments.length > 0) {
-      updatedPayments = updatedPayments.map((payment, index) => ({
-        ...payment,
-        isDefault: index === 0,
-      }));
+      await makeDefaultPaymentMethod(paymentId);
+    } catch (error) {
+      setPaymentError(
+        error.response?.data?.message ||
+        "No se pudo establecer la tarjeta principal."
+      );
+    } finally {
+      setIsProcessing(false);
     }
+  }
 
-    updateUser({
-      ...user,
-      paymentMethods: updatedPayments,
-    });
+  async function handleDeletePayment(paymentId) {
+    try {
+      setIsProcessing(true);
+      setPaymentError("");
+
+      await removePaymentMethod(paymentId);
+    } catch (error) {
+      setPaymentError(
+        error.response?.data?.message ||
+        "No se pudo eliminar la tarjeta."
+      );
+    } finally {
+      setIsProcessing(false);
+    }
   }
 
   if (loadingUser) {
@@ -93,10 +120,6 @@ function PaymentMethods() {
           <p>Administra las tarjetas asociadas a tu cuenta.</p>
         </header>
 
-        {/*<div className="payment-page-back">
-          <Link to="/perfil">← Volver a mi perfil</Link>
-        </div> */}
-
         <section className="profile-section">
           <div className="profile-section-header">
             <h2>Mis tarjetas</h2>
@@ -105,8 +128,10 @@ function PaymentMethods() {
               <button
                 type="button"
                 className="profile-add-button"
+                disabled={isProcessing}
                 onClick={() => {
                   setPaymentError("");
+                  setEditingPayment(null);
                   setShowPaymentForm(true);
                 }}
               >
@@ -123,8 +148,9 @@ function PaymentMethods() {
 
           {showPaymentForm && (
             <PaymentCardForm
+              initialPayment={editingPayment}
               onSave={handleSavePayment}
-              onCancel={() => setShowPaymentForm(false)}
+              onCancel={handleCancelForm}
             />
           )}
 
@@ -138,25 +164,45 @@ function PaymentMethods() {
                 <article className="payment-card" key={payment.id}>
                   <div className="payment-card-header">
                     <div>
-                      <span className="payment-brand">{payment.brand}</span>
-                      <h3>•••• {payment.last4}</h3>
+                      <span className="payment-brand">
+                        {payment.brand}
+                      </span>
+
+                      <h3>•••• {payment.lastFour}</h3>
+                      <p>{payment.holder}</p>
                     </div>
 
                     {payment.isDefault && (
-                      <span className="default-address">Principal</span>
+                      <span className="default-address">
+                        Principal
+                      </span>
                     )}
                   </div>
 
                   <p className="payment-expiration">
-                    Vence {payment.expirationMonth}/{payment.expirationYear}
+                    Vence{" "}
+                    {String(payment.expirationMonth).padStart(2, "0")}/
+                    {payment.expirationYear}
                   </p>
 
                   <div className="payment-actions">
+                    <button
+                      type="button"
+                      className="payment-default-button"
+                      disabled={isProcessing}
+                      onClick={() => handleEditPayment(payment)}
+                    >
+                      Editar
+                    </button>
+
                     {!payment.isDefault && (
                       <button
                         type="button"
                         className="payment-default-button"
-                        onClick={() => handleSetDefaultPayment(payment.id)}
+                        disabled={isProcessing}
+                        onClick={() =>
+                          handleSetDefaultPayment(payment.id)
+                        }
                       >
                         Hacer principal
                       </button>
@@ -165,6 +211,7 @@ function PaymentMethods() {
                     <button
                       type="button"
                       className="payment-delete-button"
+                      disabled={isProcessing}
                       onClick={() => handleDeletePayment(payment.id)}
                     >
                       Eliminar

@@ -4,9 +4,20 @@ import {
   getCurrentUser,
   loginMockUser,
   saveUser,
+  updateProfileUser,
   logoutUser,
   registerUser,
   loginUser,
+  getAddresses,
+  createAddress,
+  updateAddress,
+  deleteAddress,
+  setDefaultAddress,
+  getPaymentMethods,
+createPaymentMethod,
+updatePaymentMethod,
+deletePaymentMethod,
+setDefaultPaymentMethod,
 } from "../services/userService";
 
 import {
@@ -24,32 +35,47 @@ export function AuthProvider({ children }) {
 
   // Registrar un usuario
   async function register(userData) {
-    logoutTestAdmin();
+  logoutTestAdmin();
 
-    const registeredUser = await registerUser(userData);
-    setUser(registeredUser);
-    setWelcomeTrigger((current) => current + 1);
-    return registeredUser;
-  }
+  const registeredUser = await registerUser(userData);
+
+  const registeredUserFromBackend = {
+  ...registeredUser,
+  ...(typeof registeredUser.id === "number"
+    ? {
+        addresses: await getAddresses(),
+        paymentMethods: await getPaymentMethods(),
+      }
+    : {}),
+};
+
+  setUser(registeredUserFromBackend);
+  setWelcomeTrigger((current) => current + 1);
+
+  return registeredUserFromBackend;
+}
 
   // Iniciar sesión (soporta tanto admin de prueba como usuarios registrados)
-  async function login(email, password) {
-    const adminUser = loginTestAdmin(email, password);
+async function login(email, password) {
+  logoutTestAdmin();
 
-    if (adminUser) {
-      logoutUser();
-      setUser(adminUser);
-      setWelcomeTrigger((current) => current + 1);
-      return adminUser;
-    }
+  const loggedUser = await loginUser(email, password);
 
-    logoutTestAdmin();
+  const loggedUserFromBackend = {
+  ...loggedUser,
+  ...(typeof loggedUser.id === "number"
+    ? {
+        addresses: await getAddresses(),
+        paymentMethods: await getPaymentMethods(),
+      }
+    : {}),
+};
 
-    const loggedUser = await loginUser(email, password);
-    setUser(loggedUser);
-    setWelcomeTrigger((current) => current + 1);
-    return loggedUser;
-  }
+  setUser(loggedUserFromBackend);
+  setWelcomeTrigger((current) => current + 1);
+
+  return loggedUserFromBackend;
+}
 
   // Cargar la sesión existente
   useEffect(() => {
@@ -57,8 +83,19 @@ export function AuthProvider({ children }) {
       try {
         const currentUser = await getCurrentUser();
 
-        // Si no hay usuario normal, se revisa si quedó una sesión de admin
-        setUser(currentUser ?? getAdminSession());
+const userWithAddresses = currentUser
+  ? {
+      ...currentUser,
+      ...(typeof currentUser.id === "number"
+        ? {
+            addresses: await getAddresses(),
+            paymentMethods: await getPaymentMethods(),
+          }
+        : {}),
+    }
+  : null;
+
+setUser(userWithAddresses ?? getAdminSession());
       } catch (error) {
         console.error("Error cargando usuario:", error);
         setUser(getAdminSession());
@@ -111,6 +148,92 @@ export function AuthProvider({ children }) {
     setUser(savedUser);
   }
 
+  // Actualizar información personal mediante el backend
+async function updateProfile(updatedUser) {
+  const updatedUserFromBackend = await updateProfileUser(updatedUser);
+
+  setUser((currentUser) => ({
+    ...currentUser,
+    ...updatedUserFromBackend,
+  }));
+
+  return updatedUserFromBackend;
+}
+
+// Cargar las direcciones del usuario autenticado
+async function refreshAddresses() {
+  const addresses = await getAddresses();
+
+  setUser((currentUser) =>
+    currentUser
+      ? { ...currentUser, addresses }
+      : currentUser
+  );
+
+  return addresses;
+}
+
+// Registrar una dirección
+async function addAddress(addressData) {
+  await createAddress(addressData);
+  return refreshAddresses();
+}
+
+// Editar una dirección
+async function editAddress(addressId, addressData) {
+  await updateAddress(addressId, addressData);
+  return refreshAddresses();
+}
+
+// Eliminar una dirección
+async function removeAddress(addressId) {
+  await deleteAddress(addressId);
+  return refreshAddresses();
+}
+
+// Establecer una dirección como principal
+async function makeDefaultAddress(addressId) {
+  await setDefaultAddress(addressId);
+  return refreshAddresses();
+}
+
+// Cargar los métodos de pago del usuario autenticado
+async function refreshPaymentMethods() {
+  const paymentMethods = await getPaymentMethods();
+
+  setUser((currentUser) =>
+    currentUser
+      ? { ...currentUser, paymentMethods }
+      : currentUser
+  );
+
+  return paymentMethods;
+}
+
+// Registrar una tarjeta
+async function addPaymentMethod(paymentData) {
+  await createPaymentMethod(paymentData);
+  return refreshPaymentMethods();
+}
+
+// Editar una tarjeta
+async function editPaymentMethod(paymentMethodId, paymentData) {
+  await updatePaymentMethod(paymentMethodId, paymentData);
+  return refreshPaymentMethods();
+}
+
+// Eliminar una tarjeta
+async function removePaymentMethod(paymentMethodId) {
+  await deletePaymentMethod(paymentMethodId);
+  return refreshPaymentMethods();
+}
+
+// Establecer una tarjeta como principal
+async function makeDefaultPaymentMethod(paymentMethodId) {
+  await setDefaultPaymentMethod(paymentMethodId);
+  return refreshPaymentMethods();
+}
+
   // Cerrar sesión
   function logout() {
     logoutUser();
@@ -133,6 +256,17 @@ export function AuthProvider({ children }) {
         register,
         login,
         welcomeTrigger,
+        updateProfile,
+        addAddress,
+        editAddress,
+        removeAddress,
+        makeDefaultAddress,
+        refreshAddresses,
+        addPaymentMethod,
+        editPaymentMethod,
+        removePaymentMethod,
+        makeDefaultPaymentMethod,
+        refreshPaymentMethods,
       }}
     >
       {children}

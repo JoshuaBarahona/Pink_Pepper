@@ -27,7 +27,7 @@ export class CreateOrderItemDto {
   @Type(() => Number)
   @IsInt({ message: 'El id_producto debe ser un número entero.' })
   @Min(1, { message: 'El id_producto debe ser mayor a cero.' })
-  id_producto: number;
+  id_producto!: number;
 
   @ApiProperty({
     description: 'Cantidad de unidades solicitadas del producto',
@@ -37,7 +37,7 @@ export class CreateOrderItemDto {
   @Type(() => Number)
   @IsInt({ message: 'La cantidad debe ser un número entero.' })
   @Min(1, { message: 'La cantidad mínima por producto es 1.' })
-  cantidad: number;
+  cantidad!: number;
 }
 
 export class CreateOrderDto {
@@ -49,7 +49,7 @@ export class CreateOrderDto {
   @ArrayMinSize(1, { message: 'El pedido debe contener al menos un producto.' })
   @ValidateNested({ each: true })
   @Type(() => CreateOrderItemDto)
-  items: CreateOrderItemDto[];
+  items!: CreateOrderItemDto[];
 
   @ApiProperty({
     description: 'Dirección exacta de entrega para el repartidor',
@@ -58,7 +58,7 @@ export class CreateOrderDto {
   @Transform(trimCollapse)
   @IsString({ message: 'La dirección de entrega debe ser texto.' })
   @IsNotEmpty({ message: 'La dirección de entrega es obligatoria.' })
-  direccion: string;
+  direccion!: string;
 
   @ApiPropertyOptional({
     description: 'Punto de referencia cercano para facilitar la entrega',
@@ -85,7 +85,7 @@ export class CreateOrderDto {
   @Transform(trimCollapse)
   @IsString({ message: 'El método de pago debe ser texto.' })
   @IsNotEmpty({ message: 'El método de pago es obligatorio.' })
-  metodo_pago: string;
+  metodo_pago!: string;
 
   @ApiPropertyOptional({
     description: 'Código o URL del comprobante de pago (si aplica)',

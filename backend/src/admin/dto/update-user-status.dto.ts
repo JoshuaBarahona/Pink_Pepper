@@ -8,5 +8,5 @@ export class UpdateUserStatusDto {
     example: false,
   })
   @IsBoolean({ message: 'El estado del usuario debe ser un valor booleano.' })
-  estado: boolean;
+  estado!: boolean;
 }
