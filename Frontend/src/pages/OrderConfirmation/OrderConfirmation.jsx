@@ -26,7 +26,9 @@ function OrderConfirmation() {
           <h1>¡Pedido confirmado!</h1>
 
           <p>
-            Hemos registrado tu pedido de prueba.
+            {order.isBackendOrder
+              ? "Hemos recibido tu pedido y ya está en cola para cocina."
+              : "Hemos registrado tu pedido de prueba."}{" "}
             Aquí puedes revisar sus detalles.
           </p>
         </div>
@@ -90,9 +92,16 @@ function OrderConfirmation() {
             ))}
           </div>
 
+          {order.shippingCost > 0 && (
+            <div className="confirmation-product">
+              <span>Envío</span>
+              <strong>C${Number(order.shippingCost).toFixed(2)}</strong>
+            </div>
+          )}
+
           <div className="confirmation-total">
             <span>Total</span>
-            <strong>C${order.total.toFixed(2)}</strong>
+            <strong>C${Number(order.total).toFixed(2)}</strong>
           </div>
         </div>
 

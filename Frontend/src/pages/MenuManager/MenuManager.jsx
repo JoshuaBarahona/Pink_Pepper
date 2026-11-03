@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faFloppyDisk,
@@ -64,43 +64,42 @@ const [saving, setSaving] = useState(false);
 
   const [updatingIds, setUpdatingIds] = useState([]);
 
-  const [imagePreview, setImagePreview] = useState("");
-
-useEffect(() => {
-  if (!formData.image) {
-    setImagePreview("");
-    return;
-  }
-
-  const previewUrl = URL.createObjectURL(formData.image);
-  setImagePreview(previewUrl);
-
-  return () => URL.revokeObjectURL(previewUrl);
-}, [formData.image]);
+  const imagePreview = useMemo(() => {
+    if (!formData.image) return "";
+    return URL.createObjectURL(formData.image);
+  }, [formData.image]);
 
   useEffect(() => {
-  loadProducts();
-}, []);
+    return () => {
+      if (imagePreview) URL.revokeObjectURL(imagePreview);
+    };
+  }, [imagePreview]);
 
-async function loadProducts() {
-  try {
-    setLoading(true);
-    setErrorMessage("");
-
-    const products = await getProductsForManagement();
-
-    setItems(products);
-  } catch (error) {
-    console.error("Error al cargar productos:", error);
-
-    setErrorMessage(
-      error.response?.data?.message ||
-      "No se pudieron cargar los productos."
-    );
-  } finally {
-    setLoading(false);
-  }
-}
+  useEffect(() => {
+    let ignore = false;
+    async function fetchInitialProducts() {
+      try {
+        const products = await getProductsForManagement();
+        if (!ignore) {
+          setItems(products);
+          setLoading(false);
+        }
+      } catch (error) {
+        if (!ignore) {
+          console.error("Error al cargar productos:", error);
+          setErrorMessage(
+            error.response?.data?.message ||
+            "No se pudieron cargar los productos."
+          );
+          setLoading(false);
+        }
+      }
+    }
+    fetchInitialProducts();
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   const handleToggle = async (itemId) => {
   try {

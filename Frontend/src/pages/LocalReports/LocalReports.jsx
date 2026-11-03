@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowTrendUp,
@@ -7,6 +8,7 @@ import {
   faClock,
 } from "@fortawesome/free-solid-svg-icons";
 
+import { getDashboardMetrics } from "../../services/dashboardService";
 import ManagerNav from "../../components/ManagerNav/ManagerNav";
 import "./LocalReports.css";
 
@@ -63,14 +65,51 @@ function getInitials(name) {
 }
 
 function LocalReports() {
-  /* VENTAS */
-  const weeklyTotal = weeklySales.reduce((sum, day) => sum + day.amount, 0);
-  const maxDaySales = Math.max(...weeklySales.map((day) => day.amount));
-  const averageTicket = Math.round(weeklyTotal / weeklyOrders);
+  const [metrics, setMetrics] = useState(null);
 
-  const changePercent = Math.round(
-    ((weeklyTotal - previousWeekTotal) / previousWeekTotal) * 100
-  );
+  useEffect(() => {
+    let ignore = false;
+    async function fetchMetrics() {
+      try {
+        const data = await getDashboardMetrics();
+        if (!ignore && data) {
+          setMetrics(data);
+        }
+      } catch (err) {
+        console.error("Error cargando métricas del dashboard:", err);
+      }
+    }
+    fetchMetrics();
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
+  /* VENTAS */
+  const activeWeeklySales =
+    metrics?.ganancias_ultima_semana?.desglose_diario?.map((d) => ({
+      day: d.dia,
+      amount: d.ganancias,
+    })) || weeklySales;
+
+  const weeklyTotal =
+    metrics?.ganancias_ultima_semana?.ganancias_totales ??
+    activeWeeklySales.reduce((sum, day) => sum + day.amount, 0);
+
+  const maxDaySales = Math.max(...activeWeeklySales.map((day) => day.amount), 1);
+
+  const averageTicket =
+    metrics?.ganancias_ultima_semana?.ticket_promedio ??
+    Math.round(weeklyTotal / (metrics?.pedidos_hechos?.pedidos_creados_semana || weeklyOrders));
+
+  const changePercent =
+    metrics?.ganancias_ultima_semana?.variacion_porcentual !== null &&
+    metrics?.ganancias_ultima_semana?.variacion_porcentual !== undefined
+      ? Math.round(metrics.ganancias_ultima_semana.variacion_porcentual)
+      : Math.round(
+          ((weeklyTotal - previousWeekTotal) / previousWeekTotal) * 100
+        );
+
   const isUp = changePercent >= 0;
 
   /* TOP 3 PRODUCTOS */
@@ -80,8 +119,17 @@ function LocalReports() {
   const maxUnits = topProducts[0].units;
 
   /* REPARTIDORES */
+  const activeDriverStats =
+    metrics?.tiempo_promedio_repartidores?.repartidores?.map((r) => ({
+      id: r.id_repartidor,
+      name: r.nombre_completo,
+      deliveries: r.pedidos_entregados_semana,
+      avgMinutes: r.tiempo_promedio_minutos || 0,
+    })) || driverStats;
+
   const maxDeliveries = Math.max(
-    ...driverStats.map((driver) => driver.deliveries)
+    ...activeDriverStats.map((driver) => driver.deliveries),
+    1
   );
 
   return (
@@ -125,7 +173,9 @@ function LocalReports() {
               <div className="reports-sales-stats">
                 <div>
                   <span>Pedidos</span>
-                  <strong>{weeklyOrders}</strong>
+                  <strong>
+                    {metrics?.pedidos_hechos?.pedidos_creados_semana ?? weeklyOrders}
+                  </strong>
                 </div>
 
                 <div>
@@ -138,11 +188,11 @@ function LocalReports() {
             <div
               className="reports-chart"
               role="img"
-              aria-label={`Ventas por día: ${weeklySales
+              aria-label={`Ventas por día: ${activeWeeklySales
                 .map((day) => `${day.day} ${formatMoney(day.amount)}`)
                 .join(", ")}`}
             >
-              {weeklySales.map((day) => (
+              {activeWeeklySales.map((day) => (
                 <div className="reports-chart-column" key={day.day}>
                   <span className="reports-chart-value">
                     {formatShort(day.amount)}
@@ -220,7 +270,7 @@ function LocalReports() {
             </div>
 
             <ul className="reports-drivers">
-              {driverStats.map((driver) => (
+              {activeDriverStats.map((driver) => (
                 <li className="reports-driver" key={driver.id}>
 
                   <div className="reports-driver-avatar">

@@ -39,11 +39,11 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* CLIENTE (Protegidas) */}
+        {/* CLIENTE (Protegidas) - carrito y checkout exclusivos para clientes */}
         <Route
           path="/carrito"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["customer"]} strict>
               <Cart />
             </ProtectedRoute>
           }
@@ -51,7 +51,7 @@ function App() {
         <Route
           path="/checkout"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["customer"]} strict>
               <Checkout />
             </ProtectedRoute>
           }

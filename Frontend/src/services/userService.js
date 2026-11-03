@@ -19,59 +19,6 @@ function mapBackendUser(usuario) {
   };
 }
 
-function bytesToHex(bytes) {
-  return Array.from(bytes)
-    .map((byte) => byte.toString(16).padStart(2, "0"))
-    .join("");
-}
-
-function hexToBytes(hex) {
-  return new Uint8Array(
-    hex.match(/.{1,2}/g).map((byte) => parseInt(byte, 16))
-  );
-}
-
-async function hashPassword(password, salt) {
-  const encoder = new TextEncoder();
-
-  const keyMaterial = await crypto.subtle.importKey(
-    "raw",
-    encoder.encode(password),
-    "PBKDF2",
-    false,
-    ["deriveBits"]
-  );
-
-  const derivedBits = await crypto.subtle.deriveBits(
-    {
-      name: "PBKDF2",
-      salt,
-      iterations: 150000,
-      hash: "SHA-256",
-    },
-    keyMaterial,
-    256
-  );
-
-  return bytesToHex(new Uint8Array(derivedBits));
-}
-
-async function createPasswordCredentials(password) {
-  const salt = crypto.getRandomValues(new Uint8Array(16));
-
-  return {
-    passwordSalt: bytesToHex(salt),
-    passwordHash: await hashPassword(password, salt),
-  };
-}
-
-async function verifyPassword(password, saltHex, expectedHash) {
-  const salt = hexToBytes(saltHex);
-  const actualHash = await hashPassword(password, salt);
-
-  return actualHash === expectedHash;
-}
-
 // Obtener usuarios de prueba
 export function getUsers() {
   try {

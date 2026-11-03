@@ -10,11 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 
-import {
-  ApiBearerAuth,
-  ApiOperation,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { PaymentMethodsService } from './payment-methods.service.js';
 import { CreatePaymentMethodDto } from './dto/create-payment-method.dto.js';
@@ -28,9 +24,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator.js';
 @UseGuards(JwtAuthGuard)
 @Controller('payment-methods')
 export class PaymentMethodsController {
-  constructor(
-    private readonly paymentMethodsService: PaymentMethodsService,
-  ) {}
+  constructor(private readonly paymentMethodsService: PaymentMethodsService) {}
 
   // Consultar las tarjetas del usuario autenticado
   @Get()
@@ -57,11 +51,7 @@ export class PaymentMethodsController {
     @Param('id', ParseIntPipe) paymentMethodId: number,
     @Body() dto: UpdatePaymentMethodDto,
   ) {
-    return this.paymentMethodsService.update(
-      userId,
-      paymentMethodId,
-      dto,
-    );
+    return this.paymentMethodsService.update(userId, paymentMethodId, dto);
   }
 
   // Eliminar una tarjeta
@@ -81,9 +71,6 @@ export class PaymentMethodsController {
     @CurrentUser('sub') userId: number,
     @Param('id', ParseIntPipe) paymentMethodId: number,
   ) {
-    return this.paymentMethodsService.setDefault(
-      userId,
-      paymentMethodId,
-    );
+    return this.paymentMethodsService.setDefault(userId, paymentMethodId);
   }
 }

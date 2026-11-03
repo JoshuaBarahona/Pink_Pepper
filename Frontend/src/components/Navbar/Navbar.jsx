@@ -155,8 +155,8 @@ function Navbar() {
 
       {/* ACCIONES */}
       <div className="navbar-actions">
-        {/* Carrito */}
-        {showStoreNavigation && (
+        {/* Carrito (exclusivo para clientes; los visitantes van al login) */}
+        {isCustomer && (
           <Link
             to="/carrito"
             className="navbar-cart"

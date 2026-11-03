@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateAddressDto } from './dto/create-address.dto.js';
@@ -17,10 +14,7 @@ export class AddressesService {
       where: {
         id_usuario: userId,
       },
-      orderBy: [
-        { es_principal: 'desc' },
-        { fecha_registro: 'desc' },
-      ],
+      orderBy: [{ es_principal: 'desc' }, { fecha_registro: 'desc' }],
     });
   }
 
@@ -73,11 +67,7 @@ export class AddressesService {
   }
 
   // Editar una dirección
-  async update(
-    userId: number,
-    addressId: number,
-    dto: UpdateAddressDto,
-  ) {
+  async update(userId: number, addressId: number, dto: UpdateAddressDto) {
     const address = await this.prisma.direccion_usuario.findFirst({
       where: {
         id_direccion: addressId,
@@ -86,9 +76,7 @@ export class AddressesService {
     });
 
     if (!address) {
-      throw new NotFoundException(
-        'No se encontró la dirección solicitada.',
-      );
+      throw new NotFoundException('No se encontró la dirección solicitada.');
     }
 
     if (dto.es_principal === true) {
@@ -129,9 +117,7 @@ export class AddressesService {
     });
 
     if (!address) {
-      throw new NotFoundException(
-        'No se encontró la dirección solicitada.',
-      );
+      throw new NotFoundException('No se encontró la dirección solicitada.');
     }
 
     return this.prisma.$transaction(async (tx) => {
@@ -181,9 +167,7 @@ export class AddressesService {
     });
 
     if (!address) {
-      throw new NotFoundException(
-        'No se encontró la dirección solicitada.',
-      );
+      throw new NotFoundException('No se encontró la dirección solicitada.');
     }
 
     return this.prisma.$transaction(async (tx) => {

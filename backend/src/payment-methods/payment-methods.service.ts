@@ -18,10 +18,7 @@ export class PaymentMethodsService {
       where: {
         id_usuario: userId,
       },
-      orderBy: [
-        { es_principal: 'desc' },
-        { fecha_registro: 'desc' },
-      ],
+      orderBy: [{ es_principal: 'desc' }, { fecha_registro: 'desc' }],
     });
   }
 
@@ -83,13 +80,12 @@ export class PaymentMethodsService {
     paymentMethodId: number,
     dto: UpdatePaymentMethodDto,
   ) {
-    const paymentMethod =
-      await this.prisma.metodo_pago_usuario.findFirst({
-        where: {
-          id_metodo_pago: paymentMethodId,
-          id_usuario: userId,
-        },
-      });
+    const paymentMethod = await this.prisma.metodo_pago_usuario.findFirst({
+      where: {
+        id_metodo_pago: paymentMethodId,
+        id_usuario: userId,
+      },
+    });
 
     if (!paymentMethod) {
       throw new NotFoundException(
@@ -112,13 +108,12 @@ export class PaymentMethodsService {
 
   // Eliminar una tarjeta
   async remove(userId: number, paymentMethodId: number) {
-    const paymentMethod =
-      await this.prisma.metodo_pago_usuario.findFirst({
-        where: {
-          id_metodo_pago: paymentMethodId,
-          id_usuario: userId,
-        },
-      });
+    const paymentMethod = await this.prisma.metodo_pago_usuario.findFirst({
+      where: {
+        id_metodo_pago: paymentMethodId,
+        id_usuario: userId,
+      },
+    });
 
     if (!paymentMethod) {
       throw new NotFoundException(
@@ -165,13 +160,12 @@ export class PaymentMethodsService {
 
   // Establecer una tarjeta como principal
   async setDefault(userId: number, paymentMethodId: number) {
-    const paymentMethod =
-      await this.prisma.metodo_pago_usuario.findFirst({
-        where: {
-          id_metodo_pago: paymentMethodId,
-          id_usuario: userId,
-        },
-      });
+    const paymentMethod = await this.prisma.metodo_pago_usuario.findFirst({
+      where: {
+        id_metodo_pago: paymentMethodId,
+        id_usuario: userId,
+      },
+    });
 
     if (!paymentMethod) {
       throw new NotFoundException(
@@ -212,13 +206,8 @@ export class PaymentMethodsService {
     const currentMonth = currentDate.getMonth() + 1;
     const currentYear = currentDate.getFullYear();
 
-    if (
-      year < currentYear ||
-      (year === currentYear && month < currentMonth)
-    ) {
-      throw new BadRequestException(
-        'La tarjeta se encuentra vencida.',
-      );
+    if (year < currentYear || (year === currentYear && month < currentMonth)) {
+      throw new BadRequestException('La tarjeta se encuentra vencida.');
     }
   }
 }

@@ -1,25 +1,11 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-
-const ROLE_ALIASES = {
-  repartidor: "driver",
-  driver: "driver",
-  gerente: "manager",
-  manager: "manager",
-  cocina: "kitchen",
-  kitchen: "kitchen",
-  cliente: "customer",
-  customer: "customer",
-  admin: "admin",
-};
-
-function normalizeRole(role) {
-  return ROLE_ALIASES[role] || role || "customer";
-}
+import { normalizeRole } from "../../utils/roles";
 
 /*
   Protege una ruta según autenticación y, opcionalmente, según el rol del usuario.
-  El rol "admin" puede entrar a todas las rutas protegidas.
+  El rol "admin" puede entrar a todas las rutas protegidas, salvo que se use
+  `strict`, en cuyo caso solo entran los roles indicados en `allowedRoles`.
 
   Uso:
   <ProtectedRoute>
@@ -29,9 +15,14 @@ function normalizeRole(role) {
   <ProtectedRoute allowedRoles={["manager"]}>
     <ManagerDashboard />
   </ProtectedRoute>
+
+  <ProtectedRoute allowedRoles={["customer"]} strict>
+    <Cart />
+  </ProtectedRoute>
 */
-function ProtectedRoute({ allowedRoles, children }) {
+function ProtectedRoute({ allowedRoles, strict = false, children }) {
   const { user, loadingUser } = useAuth();
+  const location = useLocation();
 
   // Espera a saber si hay sesión antes de decidir
   if (loadingUser) {
@@ -41,14 +32,15 @@ function ProtectedRoute({ allowedRoles, children }) {
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   }
 
   if (Array.isArray(allowedRoles)) {
     const userRole = normalizeRole(user.role);
     const normalizedAllowed = allowedRoles.map(normalizeRole);
     const hasAccess =
-      userRole === "admin" || normalizedAllowed.includes(userRole);
+      (!strict && userRole === "admin") ||
+      normalizedAllowed.includes(userRole);
 
     if (!hasAccess) {
       return <Navigate to="/" replace />;

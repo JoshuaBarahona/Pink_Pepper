@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faMoneyBillWave,
@@ -17,6 +17,7 @@ import {
   faRotateLeft,
 } from "@fortawesome/free-solid-svg-icons";
 
+import { getAllOrders } from "../../services/orderService";
 import ManagerNav from "../../components/ManagerNav/ManagerNav";
 import "./ManagerDashboard.css";
 
@@ -250,10 +251,74 @@ function advanceOrder(order) {
   };
 }
 
+const BACKEND_STAGE_MAP = {
+  RECIBIDO: "received",
+  EN_PREPARACION: "preparing",
+  LISTO_PARA_REPARTIDOR: "ready",
+  EN_CAMINO: "delivering",
+  ENTREGADO: "completed",
+};
+
+function mapBackendManagerOrder(order) {
+  const cliente = order.cliente || {};
+  const status = BACKEND_STAGE_MAP[order.estado_pedido] || "received";
+  const isPaid =
+    order.metodo_pago === "TARJETA" || order.estado_pedido === "ENTREGADO";
+
+  return {
+    id: String(order.id_pedido),
+    rawId: order.id_pedido,
+    status,
+    paymentStatus: isPaid ? "paid" : "pending",
+    deliveryType: order.direccion?.toLowerCase().includes("retiro")
+      ? "pickup"
+      : "delivery",
+    customer: {
+      name:
+        [cliente.primer_nombre, cliente.primer_apellido]
+          .filter(Boolean)
+          .join(" ") || "Cliente",
+    },
+    payment: {
+      type: order.metodo_pago === "TARJETA" ? "card" : "cash",
+      brand: "Tarjeta",
+      last4: "",
+    },
+    items: (order.detalles || []).map((d) => ({
+      id: d.id_producto,
+      name: d.nombre_producto,
+      quantity: d.cantidad,
+      price: d.precio_unitario,
+    })),
+    total: order.total,
+    createdAt: order.fecha_creacion,
+  };
+}
+
 function ManagerDashboard() {
   const [orders, setOrders] = useState(buildMockOrders);
   const [activeFilter, setActiveFilter] = useState("all");
   const [simulatedId, setSimulatedId] = useState("");
+
+  useEffect(() => {
+    let ignore = false;
+    async function fetchAll() {
+      try {
+        const data = await getAllOrders();
+        if (!ignore && Array.isArray(data) && data.length > 0) {
+          setOrders(data.map(mapBackendManagerOrder));
+        }
+      } catch (err) {
+        console.error("Error cargando pedidos para el gerente:", err);
+      }
+    }
+    fetchAll();
+    const interval = setInterval(fetchAll, 20000);
+    return () => {
+      ignore = true;
+      clearInterval(interval);
+    };
+  }, []);
 
   /* MÉTRICAS */
   const dailyRevenue = orders

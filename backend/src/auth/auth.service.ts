@@ -143,71 +143,69 @@ export class AuthService {
   }
 
   async updateProfile(
-  userId: number,
-  dto: UpdateProfileDto,
-): Promise<AuthUserResponse> {
-  const usuario = await this.prisma.usuario.findUnique({
-    where: { id_usuario: userId },
-  });
+    userId: number,
+    dto: UpdateProfileDto,
+  ): Promise<AuthUserResponse> {
+    const usuario = await this.prisma.usuario.findUnique({
+      where: { id_usuario: userId },
+    });
 
-  if (!usuario) {
-    throw new NotFoundException('Usuario no encontrado.');
-  }
+    if (!usuario) {
+      throw new NotFoundException('Usuario no encontrado.');
+    }
 
-  if (!usuario.estado) {
-    throw new ForbiddenException(
-      'Esta cuenta se encuentra deshabilitada.',
-    );
-  }
+    if (!usuario.estado) {
+      throw new ForbiddenException('Esta cuenta se encuentra deshabilitada.');
+    }
 
-  const correoNormalizado = dto.correo?.trim().toLowerCase();
+    const correoNormalizado = dto.correo?.trim().toLowerCase();
 
-  if (correoNormalizado) {
-    const correoExistente = await this.prisma.usuario.findFirst({
-      where: {
-        correo: correoNormalizado,
-        NOT: {
-          id_usuario: userId,
+    if (correoNormalizado) {
+      const correoExistente = await this.prisma.usuario.findFirst({
+        where: {
+          correo: correoNormalizado,
+          NOT: {
+            id_usuario: userId,
+          },
         },
+      });
+
+      if (correoExistente) {
+        throw new ConflictException(
+          'Este correo electrónico ya está registrado.',
+        );
+      }
+    }
+
+    const usuarioActualizado = await this.prisma.usuario.update({
+      where: { id_usuario: userId },
+      data: {
+        ...(dto.primer_nombre !== undefined && {
+          primer_nombre: dto.primer_nombre.trim(),
+        }),
+        ...(dto.segundo_nombre !== undefined && {
+          segundo_nombre: dto.segundo_nombre.trim(),
+        }),
+        ...(dto.primer_apellido !== undefined && {
+          primer_apellido: dto.primer_apellido.trim(),
+        }),
+        ...(dto.segundo_apellido !== undefined && {
+          segundo_apellido: dto.segundo_apellido.trim(),
+        }),
+        ...(correoNormalizado !== undefined && {
+          correo: correoNormalizado,
+        }),
+        ...(dto.telefono !== undefined && {
+          telefono: dto.telefono.trim(),
+        }),
+      },
+      include: {
+        rol_: true,
       },
     });
 
-    if (correoExistente) {
-      throw new ConflictException(
-        'Este correo electrónico ya está registrado.',
-      );
-    }
+    return this.sanitizeUsuario(usuarioActualizado);
   }
-
-  const usuarioActualizado = await this.prisma.usuario.update({
-    where: { id_usuario: userId },
-    data: {
-      ...(dto.primer_nombre !== undefined && {
-        primer_nombre: dto.primer_nombre.trim(),
-      }),
-      ...(dto.segundo_nombre !== undefined && {
-        segundo_nombre: dto.segundo_nombre.trim(),
-      }),
-      ...(dto.primer_apellido !== undefined && {
-        primer_apellido: dto.primer_apellido.trim(),
-      }),
-      ...(dto.segundo_apellido !== undefined && {
-        segundo_apellido: dto.segundo_apellido.trim(),
-      }),
-      ...(correoNormalizado !== undefined && {
-        correo: correoNormalizado,
-      }),
-      ...(dto.telefono !== undefined && {
-        telefono: dto.telefono.trim(),
-      }),
-    },
-    include: {
-      rol_: true,
-    },
-  });
-
-  return this.sanitizeUsuario(usuarioActualizado);
-}
 
   private async buildAuthResponse(
     usuario: UsuarioConRol,

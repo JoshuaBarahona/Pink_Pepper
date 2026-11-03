@@ -301,3 +301,36 @@
   cursor: not-allowed;
   opacity: 0.7;
 }
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin: 8px 0;
+  color: #555;
+}
+
+.summary-notes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 16px 0;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.summary-notes textarea {
+  min-height: 70px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font: inherit;
+  resize: vertical;
+}
+
+.checkout-error {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background-color: rgba(204, 51, 51, 0.1);
+  color: #a33;
+  font-size: 0.9rem;
+}

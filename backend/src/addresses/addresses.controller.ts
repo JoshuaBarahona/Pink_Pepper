@@ -10,11 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 
-import {
-  ApiBearerAuth,
-  ApiOperation,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { AddressesService } from './addresses.service.js';
 import { CreateAddressDto } from './dto/create-address.dto.js';
@@ -40,10 +36,7 @@ export class AddressesController {
   // Registrar una nueva dirección
   @Post()
   @ApiOperation({ summary: 'Registrar una dirección' })
-  create(
-    @CurrentUser('sub') userId: number,
-    @Body() dto: CreateAddressDto,
-  ) {
+  create(@CurrentUser('sub') userId: number, @Body() dto: CreateAddressDto) {
     return this.addressesService.create(userId, dto);
   }
 

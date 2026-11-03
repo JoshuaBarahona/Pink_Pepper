@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -13,6 +13,10 @@ import {
   faBoxOpen,
 } from "@fortawesome/free-solid-svg-icons";
 
+import {
+  getAssignedOrders,
+  markOrderEnCamino,
+} from "../../services/courierService";
 import "./DriverDashboard.css";
 
 /* ---------------------------------------------------------
@@ -90,18 +94,83 @@ function getItemsCount(items) {
   return items.reduce((sum, item) => sum + item.quantity, 0);
 }
 
+function mapBackendCourierOrder(order) {
+  const cliente = order.cliente || {};
+  const ubicacion = order.ubicacion_entrega || {};
+  return {
+    id: String(order.id_pedido),
+    rawId: order.id_pedido,
+    deliveryType: "delivery",
+    customer: {
+      name:
+        [cliente.primer_nombre, cliente.primer_apellido]
+          .filter(Boolean)
+          .join(" ") || "Cliente",
+      phone: cliente.telefono || "",
+      address: ubicacion.direccion || order.direccion || "",
+      reference: ubicacion.referencia || order.referencia || "",
+      notes: ubicacion.notas_cliente || order.notas_cliente || "",
+      mapsUrl: ubicacion.maps_url || "",
+    },
+    payment: {
+      type: order.metodo_pago === "TARJETA" ? "card" : "cash",
+      receipt: order.comprobante,
+    },
+    items: (order.detalles || []).map((d) => ({
+      id: d.id_producto,
+      name: d.nombre_producto,
+      quantity: d.cantidad,
+      price: d.precio_unitario,
+    })),
+    total: order.total,
+    distance: "En tu zona",
+    createdAt: order.fecha_creacion,
+    estadoPedido: order.estado_pedido,
+  };
+}
+
 function DriverDashboard() {
   const navigate = useNavigate();
 
   const [isOnline, setIsOnline] = useState(false);
-  const [pendingOrders] = useState(mockPendingOrders);
+  const [pendingOrders, setPendingOrders] = useState(mockPendingOrders);
+
+  useEffect(() => {
+    if (!isOnline) return;
+
+    let ignore = false;
+    async function fetchCourierOrders() {
+      try {
+        const data = await getAssignedOrders();
+        if (!ignore && Array.isArray(data) && data.length > 0) {
+          setPendingOrders(data.map(mapBackendCourierOrder));
+        }
+      } catch (err) {
+        console.error("Error al cargar pedidos del repartidor:", err);
+      }
+    }
+
+    fetchCourierOrders();
+    const interval = setInterval(fetchCourierOrders, 15000);
+    return () => {
+      ignore = true;
+      clearInterval(interval);
+    };
+  }, [isOnline]);
 
   function handleToggleOnline() {
     setIsOnline((current) => !current);
   }
 
-  function handleAcceptOrder(order) {
-    // Cuando exista backend: marcar el pedido como aceptado aquí.
+  async function handleAcceptOrder(order) {
+    if (order.rawId) {
+      try {
+        await markOrderEnCamino(order.rawId);
+      } catch (err) {
+        console.error("Error al marcar pedido en camino:", err);
+      }
+    }
+
     navigate("/entrega-activa", {
       state: {
         order: { ...order, status: "accepted" },

@@ -12,6 +12,7 @@ import {
   faCircleCheck,
 } from "@fortawesome/free-solid-svg-icons";
 
+import { markOrderDelivered } from "../../services/courierService";
 import "./ActiveDelivery.css";
 
 function ActiveDelivery() {
@@ -37,15 +38,14 @@ function ActiveDelivery() {
     order.customer.address
   )}`;
 
-  function handleDelivered() {
-    const deliveredOrder = {
-      ...order,
-      status: "delivered",
-      deliveredAt: new Date().toISOString(),
-    };
-
-    // Cuando exista backend: enviar el cambio de estado aquí.
-    console.log("Pedido entregado:", deliveredOrder);
+  async function handleDelivered() {
+    if (order.rawId) {
+      try {
+        await markOrderDelivered(order.rawId);
+      } catch (err) {
+        console.error("Error al marcar pedido como entregado:", err);
+      }
+    }
 
     navigate("/repartidor");
   }

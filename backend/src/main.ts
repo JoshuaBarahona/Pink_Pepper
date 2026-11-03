@@ -13,8 +13,8 @@ async function bootstrap() {
 
   app.enableCors();
   app.useStaticAssets(join(process.cwd(), 'uploads'), {
-  prefix: '/uploads/',
-});
+    prefix: '/uploads/',
+  });
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -40,6 +40,11 @@ async function bootstrap() {
     .addTag('Auth', 'Registro de clientes, inicio de sesión y perfil JWT')
     .addTag('Products', 'Catálogo público y gestión del menú (GERENTE y ADMIN)')
     .addTag('Orders', 'Creación de pedidos, historial y flujo de cocina')
+    .addTag('Addresses', 'Gestión de direcciones de entrega del usuario')
+    .addTag(
+      'Payment Methods',
+      'Gestión de métodos de pago con tarjeta del usuario',
+    )
     .addTag(
       'Courier',
       'Entregas asignadas, ubicación y cambio de estado (REPARTIDOR)',

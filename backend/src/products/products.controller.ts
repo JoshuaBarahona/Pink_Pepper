@@ -68,7 +68,7 @@ export class ProductsController {
     return this.productsService.create(dto);
   }
 
-    @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Rol.GERENTE, Rol.ADMIN)
   @Post(':id/image')
   @ApiBearerAuth()
@@ -76,11 +76,7 @@ export class ProductsController {
     FileInterceptor('image', {
       storage: diskStorage({
         destination: (req, file, callback) => {
-          const uploadPath = join(
-            process.cwd(),
-            'uploads',
-            'products',
-          );
+          const uploadPath = join(process.cwd(), 'uploads', 'products');
 
           mkdirSync(uploadPath, { recursive: true });
 
@@ -102,11 +98,7 @@ export class ProductsController {
         fileSize: 5 * 1024 * 1024,
       },
       fileFilter: (req, file, callback) => {
-        const allowedTypes = [
-          'image/jpeg',
-          'image/png',
-          'image/webp',
-        ];
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
 
         if (!allowedTypes.includes(file.mimetype)) {
           return callback(

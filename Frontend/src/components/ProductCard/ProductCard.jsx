@@ -1,7 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useCart } from "../../context/CartContext";
+import { useAuth } from "../../context/AuthContext";
 import {
+  faCheck,
   faPlus,
   faStar,
 } from "@fortawesome/free-solid-svg-icons";
@@ -17,24 +20,51 @@ function ProductCard({
   category,
   options,
 }) {
-  const { addToCart } = useCart();
+  const { addToCart, canUseCart } = useCart();
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
   const [showOptions, setShowOptions] = useState(false);
   const [selectedOption, setSelectedOption] = useState("");
+  const [justAdded, setJustAdded] = useState(false);
 
-  function handleAddToCart() {
-    if (options) {
-      setShowOptions(true);
-      return;
-    }
+  // Solo los clientes y los visitantes ven el botón de agregar
+  const showAddButton = canUseCart || !isAuthenticated;
 
-    addToCart({
+  useEffect(() => {
+    if (!justAdded) return;
+
+    const timer = setTimeout(() => setJustAdded(false), 1500);
+    return () => clearTimeout(timer);
+  }, [justAdded]);
+
+  function addProduct(option) {
+    const added = addToCart({
       id,
       name,
       description,
       price: Number(price),
       image,
       category,
+      selectedOption: option,
     });
+
+    if (added) setJustAdded(true);
+  }
+
+  function handleAddToCart() {
+    // Los visitantes deben iniciar sesión como clientes para comprar
+    if (!isAuthenticated) {
+      navigate("/login", { state: { from: "/menu" } });
+      return;
+    }
+
+    if (options) {
+      setShowOptions(true);
+      return;
+    }
+
+    addProduct();
   }
 
   return (
@@ -57,15 +87,27 @@ function ProductCard({
         <div className="product-bottom">
           <span className="product-price">C${price}</span>
 
-          <button
-            type="button"
-            className="product-add"
-            aria-label={`Agregar ${name} al carrito`}
-            onClick={handleAddToCart}
-          >
-            <FontAwesomeIcon icon={faPlus} />
-          </button>
+          {showAddButton && (
+            <button
+              type="button"
+              className={`product-add ${justAdded ? "product-add-done" : ""}`}
+              aria-label={
+                justAdded
+                  ? `${name} agregado al carrito`
+                  : `Agregar ${name} al carrito`
+              }
+              onClick={handleAddToCart}
+            >
+              <FontAwesomeIcon icon={justAdded ? faCheck : faPlus} />
+            </button>
+          )}
         </div>
+
+        {justAdded && (
+          <p className="product-added-message" role="status">
+            Agregado al carrito
+          </p>
+        )}
 
         {showOptions && options && (
           <div className="product-options">
@@ -92,16 +134,7 @@ function ProductCard({
               className="confirm-option"
               disabled={!selectedOption}
               onClick={() => {
-                addToCart({
-                  id,
-                  name,
-                  description,
-                  price: Number(price),
-                  image,
-                  category,
-                  selectedOption,
-                });
-
+                addProduct(selectedOption);
                 setShowOptions(false);
                 setSelectedOption("");
               }}

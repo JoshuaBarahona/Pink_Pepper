@@ -15,6 +15,10 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 import { useAuth } from "../../context/AuthContext";
+import {
+  getKitchenOrders,
+  updateOrderStatus as apiUpdateOrderStatus,
+} from "../../services/orderService";
 import "./KitchenDashboard.css";
 
 /* ---------------------------------------------------------
@@ -95,7 +99,25 @@ const mockOrders = [
 // Los ids reales son largos (PP-1761864528472). En cocina se
 // muestran los últimos 4 dígitos para poder leerlos de lejos.
 function getTicketNumber(id) {
-  return `PP-${id.slice(-4)}`;
+  const str = String(id);
+  return str.length > 4 ? `PP-${str.slice(-4)}` : `PP-${str.padStart(4, "0")}`;
+}
+
+function mapBackendKitchenOrder(order) {
+  const isPreparing = order.estado_pedido === "EN_PREPARACION";
+  return {
+    id: String(order.id_pedido),
+    rawId: order.id_pedido,
+    status: isPreparing ? "preparing" : "received",
+    createdAt: order.fecha_creacion,
+    notes: order.notas_cliente,
+    items: (order.detalles || []).map((d) => ({
+      id: d.id_producto,
+      name: d.nombre_producto,
+      quantity: d.cantidad,
+      selectedOption: "",
+    })),
+  };
 }
 
 function getElapsedMinutes(isoDate, now) {
@@ -199,6 +221,27 @@ function KitchenDashboard() {
   const [now, setNow] = useState(() => Date.now());
   const [lastDispatched, setLastDispatched] = useState(null);
 
+  // Cargar pedidos reales de cocina desde el backend
+  useEffect(() => {
+    let ignore = false;
+    async function fetchKitchen() {
+      try {
+        const data = await getKitchenOrders();
+        if (!ignore && Array.isArray(data) && data.length > 0) {
+          setOrders(data.map(mapBackendKitchenOrder));
+        }
+      } catch (err) {
+        console.error("No se pudieron cargar pedidos de cocina:", err);
+      }
+    }
+    fetchKitchen();
+    const interval = setInterval(fetchKitchen, 15000);
+    return () => {
+      ignore = true;
+      clearInterval(interval);
+    };
+  }, []);
+
   // Actualiza el reloj y los tiempos transcurridos
   useEffect(() => {
     const timer = setInterval(() => setNow(Date.now()), 30000);
@@ -227,7 +270,6 @@ function KitchenDashboard() {
     .sort(sortByOldest);
 
   function updateStatus(orderId, nextStatus) {
-    // Cuando exista backend: enviar el cambio de estado aquí.
     setOrders((currentOrders) =>
       currentOrders.map((order) =>
         order.id === orderId ? { ...order, status: nextStatus } : order
@@ -235,20 +277,41 @@ function KitchenDashboard() {
     );
   }
 
-  function handleStart(order) {
+  async function handleStart(order) {
     updateStatus(order.id, "preparing");
+    if (order.rawId) {
+      try {
+        await apiUpdateOrderStatus(order.rawId, "EN_PREPARACION");
+      } catch (err) {
+        console.error("Error al actualizar estado en cocina:", err);
+      }
+    }
   }
 
-  function handleDispatch(order) {
+  async function handleDispatch(order) {
     updateStatus(order.id, "ready");
     setLastDispatched(order);
+    if (order.rawId) {
+      try {
+        await apiUpdateOrderStatus(order.rawId, "LISTO_PARA_REPARTIDOR");
+      } catch (err) {
+        console.error("Error al despachar pedido en cocina:", err);
+      }
+    }
   }
 
-  function handleUndo() {
+  async function handleUndo() {
     if (!lastDispatched) return;
-
-    updateStatus(lastDispatched.id, "preparing");
+    const target = lastDispatched;
+    updateStatus(target.id, "preparing");
     setLastDispatched(null);
+    if (target.rawId) {
+      try {
+        await apiUpdateOrderStatus(target.rawId, "EN_PREPARACION");
+      } catch (err) {
+        console.error("Error al revertir despacho en cocina:", err);
+      }
+    }
   }
 
   function handleLogout() {

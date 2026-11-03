@@ -93,33 +93,49 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
-@Patch('profile')
-@ApiBearerAuth()
-@ApiOperation({
-  summary: 'Actualizar el perfil del usuario autenticado',
-  description:
-    'Permite modificar los datos personales del usuario correspondiente al token JWT enviado.',
-})
-@ApiOkResponse({
-  description: 'Perfil actualizado exitosamente.',
-})
-@ApiBadRequestResponse({
-  description: 'Los datos enviados no son válidos.',
-})
-@ApiConflictResponse({
-  description: 'El correo electrónico ya está registrado.',
-})
-@ApiForbiddenResponse({
-  description: 'La cuenta del usuario se encuentra deshabilitada.',
-})
-@ApiUnauthorizedResponse({
-  description: 'Token JWT ausente, inválido o expirado.',
-})
-updateProfile(
-  @CurrentUser() user: JwtPayload,
-  @Body() dto: UpdateProfileDto,
-) {
-  return this.authService.updateProfile(user.sub, dto);
-}
+  @Get('me')
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Alias para obtener el perfil del usuario autenticado',
+    description: 'Retorna los mismos datos que /auth/profile.',
+  })
+  @ApiOkResponse({
+    description: 'Datos del usuario autenticado.',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Token JWT ausente, inválido o expirado.',
+  })
+  getMe(@CurrentUser() user: JwtPayload) {
+    return this.authService.getProfile(user.sub);
+  }
 
+  @UseGuards(JwtAuthGuard)
+  @Patch('profile')
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Actualizar el perfil del usuario autenticado',
+    description:
+      'Permite modificar los datos personales del usuario correspondiente al token JWT enviado.',
+  })
+  @ApiOkResponse({
+    description: 'Perfil actualizado exitosamente.',
+  })
+  @ApiBadRequestResponse({
+    description: 'Los datos enviados no son válidos.',
+  })
+  @ApiConflictResponse({
+    description: 'El correo electrónico ya está registrado.',
+  })
+  @ApiForbiddenResponse({
+    description: 'La cuenta del usuario se encuentra deshabilitada.',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Token JWT ausente, inválido o expirado.',
+  })
+  updateProfile(
+    @CurrentUser() user: JwtPayload,
+    @Body() dto: UpdateProfileDto,
+  ) {
+    return this.authService.updateProfile(user.sub, dto);
+  }
 }

@@ -1,9 +1,15 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useCart } from "../../context/CartContext";
+import { Navigate, useNavigate } from "react-router-dom";
+import { useCart, DELIVERY_FEE } from "../../context/CartContext";
 import { useAuth } from "../../context/AuthContext";
+import {
+  createOrder,
+  getOrderErrorMessage,
+} from "../../services/orderService";
 import PaymentCardForm from "../../components/PaymentCardForm/PaymentCardForm";
 import "./Checkout.css";
+
+const PICKUP_ADDRESS = "Retiro en local - Pink Pepper";
 
 function Checkout() {
   const { cart, cartSubtotal, clearCart } = useCart();
@@ -11,6 +17,13 @@ function Checkout() {
   const navigate = useNavigate();
 
   const [deliveryType, setDeliveryType] = useState("delivery");
+  const [notes, setNotes] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const [orderPlaced, setOrderPlaced] = useState(false);
+
+  const shippingCost = deliveryType === "delivery" ? DELIVERY_FEE : 0;
+  const orderTotal = Number((cartSubtotal + shippingCost).toFixed(2));
 
   const [selectedAddressId, setSelectedAddressId] = useState(() => {
     const defaultAddress = user?.addresses?.find(
@@ -109,17 +122,61 @@ function Checkout() {
     setShowPaymentForm(false);
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
 
+    if (isSubmitting) return;
+
+    setSubmitError("");
+
     if (cart.length === 0) {
-      alert("Tu carrito está vacío.");
+      setSubmitError("Tu carrito está vacío.");
       return;
     }
 
     if (paymentType === "card" && !selectedPayment) {
-      alert("Selecciona una tarjeta para continuar.");
+      setSubmitError("Selecciona una tarjeta para continuar.");
       return;
+    }
+
+    const cardLast4 = selectedPayment?.last4 || selectedPayment?.lastFour || "";
+    const orderItems = cart.map((item) => ({ ...item }));
+
+    let backendOrder = null;
+
+    // Los clientes autenticados con JWT registran el pedido en el backend
+    if (typeof user?.id === "number") {
+      setIsSubmitting(true);
+
+      try {
+        backendOrder = await createOrder({
+          items: cart,
+          address:
+            deliveryType === "delivery"
+              ? customerData.address.trim()
+              : PICKUP_ADDRESS,
+          reference:
+            deliveryType === "delivery" ? customerData.reference.trim() : "",
+          notes: [
+            notes.trim(),
+            ...cart
+              .filter((item) => item.selectedOption)
+              .map((item) => `${item.name}: ${item.selectedOption}`),
+          ]
+            .filter(Boolean)
+            .join(" | "),
+          paymentMethod: paymentType === "card" ? "TARJETA" : "EFECTIVO",
+          receipt:
+            paymentType === "card" && selectedPayment
+              ? `${selectedPayment.brand} **** ${cardLast4}`
+              : "",
+          shippingCost,
+        });
+      } catch (error) {
+        setSubmitError(getOrderErrorMessage(error));
+        setIsSubmitting(false);
+        return;
+      }
     }
 
     const order = {
@@ -136,33 +193,43 @@ function Checkout() {
         ...(paymentType === "card" && {
           cardId: selectedPayment.id,
           brand: selectedPayment.brand,
-          last4: selectedPayment.last4,
+          last4: cardLast4,
         }),
       },
 
-      items: cart,
+      items: orderItems,
+      notes: notes.trim(),
       subtotal: cartSubtotal,
-      total: cartSubtotal,
-      status: "pending",
+      shippingCost: backendOrder ? backendOrder.costo_envio : shippingCost,
+      total: backendOrder ? backendOrder.total : orderTotal,
     };
 
     const confirmedOrder = {
       ...order,
-      items: cart.map((item) => ({ ...item })),
-      id: `PP-${Date.now()}`,
-      status: "confirmed",
-      createdAt: new Date().toISOString(),
+      id: backendOrder ? backendOrder.id_pedido : `PP-${Date.now()}`,
+      status: backendOrder ? backendOrder.estado_pedido : "confirmed",
+      createdAt: backendOrder
+        ? backendOrder.fecha_creacion
+        : new Date().toISOString(),
+      isBackendOrder: Boolean(backendOrder),
     };
 
-    // Vaciar el carrito después de crear el pedido de prueba
+    // Vaciar el carrito después de crear el pedido
+    setOrderPlaced(true);
     clearCart();
 
     // Mostrar la confirmación con los productos originales
     navigate("/pedido-confirmado", {
+      replace: true,
       state: {
         order: confirmedOrder,
       },
     });
+  }
+
+  // Sin productos no hay nada que pagar: volver al carrito
+  if (cart.length === 0 && !orderPlaced) {
+    return <Navigate to="/carrito" replace />;
   }
 
   return (
@@ -367,7 +434,7 @@ function Checkout() {
 
                           <div>
                             <strong>
-                              {payment.brand} •••• {payment.last4}
+                              {payment.brand} •••• {payment.last4 || payment.lastFour}
                             </strong>
 
                             <span>
@@ -428,25 +495,57 @@ function Checkout() {
                     )}
                   </div>
 
-                  <strong>C${item.price * item.quantity}</strong>
+                  <strong>
+                    C${(item.price * item.quantity).toFixed(2)}
+                  </strong>
                 </div>
               ))}
             </div>
 
-            <div className="summary-total">
+            <div className="summary-row">
               <span>Subtotal</span>
-              <strong>C${cartSubtotal}</strong>
+              <span>C${cartSubtotal.toFixed(2)}</span>
             </div>
+
+            <div className="summary-row">
+              <span>Envío</span>
+              <span>
+                {shippingCost > 0 ? `C$${shippingCost.toFixed(2)}` : "Gratis"}
+              </span>
+            </div>
+
+            <div className="summary-total">
+              <span>Total</span>
+              <strong>C${orderTotal.toFixed(2)}</strong>
+            </div>
+
+            <label className="summary-notes" htmlFor="orderNotes">
+              Notas para cocina (opcional)
+              <textarea
+                id="orderNotes"
+                value={notes}
+                maxLength={200}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Ej. Sin cebolla, salsa aparte..."
+              />
+            </label>
+
+            {submitError && (
+              <p className="checkout-error" role="alert">
+                {submitError}
+              </p>
+            )}
 
             <button
               type="submit"
               className="confirm-order-button"
               disabled={
+                isSubmitting ||
                 cart.length === 0 ||
                 (paymentType === "card" && !selectedPayment)
               }
             >
-              Confirmar pedido
+              {isSubmitting ? "Enviando pedido..." : "Confirmar pedido"}
             </button>
           </aside>
         </form>

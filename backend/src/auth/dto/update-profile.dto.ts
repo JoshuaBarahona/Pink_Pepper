@@ -1,9 +1,4 @@
-import {
-  IsEmail,
-  IsString,
-  MaxLength,
-  ValidateIf,
-} from 'class-validator';
+import { IsEmail, IsString, MaxLength, ValidateIf } from 'class-validator';
 
 export class UpdateProfileDto {
   @ValidateIf((_object, value) => value !== undefined)
